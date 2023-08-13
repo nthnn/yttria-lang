@@ -8,7 +8,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, './build'),
         clean: true,
-        filename: 'zync.js'
+        filename: 'krypta.js'
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"],
