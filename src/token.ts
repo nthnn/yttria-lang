@@ -9,7 +9,13 @@ interface Token {
 }
 
 class TokenUtil {
-    public static newToken(filename: string, image: string, column: number, line: number, type: TokenType): Token {
+    public static newToken(
+        filename: string,
+        image: string,
+        column: number,
+        line: number,
+        type: TokenType
+    ): Token {
         return {
             filename: filename,
             image: image,

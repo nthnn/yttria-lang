@@ -11,4 +11,4 @@ const TokenOperators: Array<string> = [
     '<=', '>', '>=', '>>', '?', ';'
 ];
 
-export default TokenImages;
+export { TokenImages, TokenOperators };

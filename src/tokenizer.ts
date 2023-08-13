@@ -1,6 +1,7 @@
-import { Token, TokenUtil } from "./token";
-import TokenImages from "./token_defs";
-import TokenType from "./token_types";
+import { error } from 'console';
+import { Token, TokenUtil } from './token';
+import { TokenImages, TokenOperators } from './token_defs';
+import TokenType from './token_types';
 
 interface TokenizerError {
     message: string;
@@ -31,7 +32,7 @@ class TokenizerUtil {
     }
 
     public static isBinary(char: string): boolean {
-        return char === '0' || char === '1';
+        return char == '0' || char == '1';
     }
 
     public static isOctadecimal(char: string): boolean {
@@ -49,6 +50,10 @@ class TokenizerUtil {
     public static isKeyword(image: string): boolean {
         return TokenImages.indexOf(image) != -1;
     }
+
+    public static isOperator(image: string): boolean {
+        return TokenOperators.indexOf(image) != -1;
+    }
 }
 
 class Tokenizer {
@@ -59,11 +64,16 @@ class Tokenizer {
     private column: number = 1;
     private line: number = 1;
 
+    private results: TokenizerResult = {
+        errors: [],
+        tokens: []
+    };
+
     public constructor(_filename: string, _source: string) {
         this.filename = _filename;
         this.source = _source;
 
-        console.log(`Initialed tokenizer for ${this.filename}`);
+        console.log(`Initialized tokenizer for ${this.filename}`);
     }
 
     private current(): string {
@@ -87,48 +97,176 @@ class Tokenizer {
         return this.pos == this.source.length;
     }
 
-    public scan(): TokenizerResult {
-        const results: TokenizerResult = {
-            errors: [],
-            tokens: []
-        };
+    private pushToken(image: string, type: TokenType): void {
+        this.results.tokens.push(
+            TokenUtil.newToken(
+                this.filename,
+                image, 
+                this.column - image.length,
+                this.line,
+                type
+            )
+        );
+    }
 
-        console.log(`Starting tokenization for ${this.filename}...`);
+    private consumeWhitespace(): void {
+        if(this.current() == '\n') {
+            this.column = 1;
+            this.line++;
+        }
+        else this.column++;
+
+        this.advance();
+    }
+
+    private consumeByValidator(
+        validator: (_: string)=> boolean,
+        validatorName: string,
+        callback: ()=> void): void {
+
+        while(!this.isAtEnd())
+            if(validator(this.current()))
+                callback();
+            else if(TokenizerUtil.isWhitespace(this.current()))
+                break;
+            else {
+                if(validator == TokenizerUtil.isDigit &&
+                    this.current() == '.')
+                    break;
+                this.results.errors.push({
+                    message: 'Expecting ' +
+                        validatorName + '.',
+                    line: this.line,
+                    column: this.column
+                });
+
+                break;
+            }
+    }
+
+    private consumeDigit(): string {
+        var image: string = '';
+
+        this.consumeByValidator(
+            TokenizerUtil.isDigit,
+            'digit',
+            ()=> image += this.consume()
+        );
+        
+        if(this.current() == '.')
+            image += this.consume();
+
+        this.consumeByValidator(
+            TokenizerUtil.isDigit,
+            'digit',
+            ()=> image += this.consume()
+        );
+
+        return image;
+    }
+
+    private consumeBinary(): string {
+        var image: string = this.consume();
+
+        this.consumeByValidator(
+            TokenizerUtil.isBinary,
+            'binary',
+            ()=> image += this.consume()
+        );
+
+        return image;
+    }
+
+    private consumeOctadecimal(): string {
+        var image: string = this.consume();
+
+        this.consumeByValidator(
+            TokenizerUtil.isOctadecimal,
+            'octadecimal',
+            ()=> image += this.consume()
+        );
+
+        return image;
+    }
+
+    private consumeHexadecimal(): string {
+        var image: string = this.consume();
+
+        this.consumeByValidator(
+            TokenizerUtil.isHexadecimal,
+            'hexadecimal',
+            ()=> image += this.consume()
+        );
+
+        return image;
+    }
+
+    private consumeNumber(): void {
+        var image: string = this.consume();
+
+        if(image == '0') {
+            if(this.current() == 'b')
+                image += this.consumeBinary();
+            else if(this.current() == 'o')
+                image += this.consumeOctadecimal();
+            else if(this.current() == 'x')
+                image += this.consumeHexadecimal();
+            else image += this.consumeDigit();
+        }
+        else image += this.consumeDigit();
+
+        this.pushToken(image, TokenType.TOKEN_DIGIT);
+    }
+
+    private consumeComment(): void {
+        while(!this.isAtEnd() &&
+        this.current() != '\n')
+            this.consume();
+    }
+
+    private consumeIdentifier(): void {
+        var image: string = this.consume();
+
+        while(!this.isAtEnd() &&
+            (TokenizerUtil.isIdentifier(this.current()) ||
+             TokenizerUtil.isDigit(this.current())))
+            image += this.consume();
+
+        this.pushToken(image, TokenizerUtil.isKeyword(image) ?
+            TokenType.TOKEN_KEYWORD :
+            TokenType.TOKEN_IDENTIFIER
+        );
+    }
+
+    private consumeString(): void {
+        let sign: string = this.consume();
+        var stringContent: string = '';
+    }
+
+    public scan(): TokenizerResult {
         while(true) {
             if(this.isAtEnd())
                 break;
 
-            if(TokenizerUtil.isWhitespace(this.current())) {
-                if(this.current() == '\n') {
-                    this.column = 1;
-                    this.line++;
-                }
-                else this.column++;
-
-                this.advance();
-            }
-            else if(TokenizerUtil.isIdentifier(this.current())) {
-                var image: string = this.consume();
-                const column = this.column - 1;
-
-                while(!this.isAtEnd() &&
-                    (TokenizerUtil.isIdentifier(this.current()) ||
-                     TokenizerUtil.isDigit(this.current())))
-                    image += this.consume();
-
-                results.tokens.push(
-                    TokenUtil.newToken(this.filename, image, 
-                        column,
-                        this.line,
-                        TokenizerUtil.isKeyword(image) ?
-                            TokenType.TOKEN_KEYWORD :
-                            TokenType.TOKEN_IDENTIFIER
-                    )
-                );
-            }
+            if(TokenizerUtil.isWhitespace(this.current()))
+                this.consumeWhitespace();
+            else if(this.current() == '#')
+                this.consumeComment();
+            else if(this.current() == '\'' ||
+                this.current() == '\'')
+                this.consumeString();
+            else if(TokenizerUtil.isDigit(this.current()))
+                this.consumeNumber();
+            else if(TokenizerUtil.isIdentifier(this.current()))
+                this.consumeIdentifier();
+            else this.results.errors.push({
+                message: `Unidentified '${this.consume()}' character encountered.`,
+                column: this.column,
+                line: this.line
+            });
         }
 
-        return results;
+        return this.results;
     }
 }
 
