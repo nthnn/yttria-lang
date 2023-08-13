@@ -1,9 +1,9 @@
-enum TokenTypes {
+enum TokenType {
+    TOKEN_IDENTIFIER,
+    TOKEN_KEYWORD,
     TOKEN_DIGIT,
     TOKEN_STRING,
-    TOKEN_TRUE,
-    TOKEN_FALSE,
-    TOKEN_NIL,
+    TOKEN_OPERATOR
 }
 
-export default TokenTypes;
+export default TokenType;
