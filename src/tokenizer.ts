@@ -1,7 +1,7 @@
-import { error } from 'console';
 import { Token, TokenUtil } from './token';
-import { TokenImages, TokenOperators } from './token_defs';
+
 import TokenType from './token_types';
+import TokenizerUtil from './tokenizer_util';
 
 interface TokenizerError {
     message: string;
@@ -12,48 +12,6 @@ interface TokenizerError {
 interface TokenizerResult {
     tokens: Array<Token>;
     errors: Array<TokenizerError>;
-}
-
-class TokenizerUtil {
-    public static isWhitespace(char: string): boolean {
-        switch(char) {
-            case ' ':
-            case '\n':
-            case '\r':
-            case '\t':
-                return true;
-        }
-
-        return false;
-    }
-
-    public static isDigit(char: string): boolean {
-        return /^[0-9]+$/.test(char);
-    }
-
-    public static isBinary(char: string): boolean {
-        return char == '0' || char == '1';
-    }
-
-    public static isOctadecimal(char: string): boolean {
-        return /^[0-7]+$/.test(char);
-    }
-
-    public static isHexadecimal(char: string): boolean {
-        return /^[0-9A-Fa-f]+$/.test(char);
-    }
-
-    public static isIdentifier(char: string): boolean {
-        return /^[a-zA-Z]+$/.test(char);
-    }
-
-    public static isKeyword(image: string): boolean {
-        return TokenImages.indexOf(image) != -1;
-    }
-
-    public static isOperator(image: string): boolean {
-        return TokenOperators.indexOf(image) != -1;
-    }
 }
 
 class Tokenizer {
@@ -256,7 +214,36 @@ class Tokenizer {
 
                 this.consume();
             }
-            else stringContent += this.consume();
+            else {
+                if(this.current() == '\\') {
+                    stringContent += this.consume();
+                    if(this.isAtEnd()) {
+                        this.results.errors.push({
+                            message: "Expecting escape character sequence, encountered EOF.",
+                            column: (this.column - stringContent.length) - 1,
+                            line: this.line
+                        });
+                        break;
+                    }
+
+                    switch(this.current()) {
+                        case 't':
+                        case 'r':
+                        case 'n':
+                            stringContent += this.consume();
+                            break;
+
+                        default:
+                            this.results.errors.push({
+                                message: "Invalid character escape sequence: " + this.consume(),
+                                column: (this.column - stringContent.length) - 1,
+                                line: this.line
+                            });
+                            break;
+                    }
+                }
+                else stringContent += this.consume();
+            }
 
         this.results.tokens.push(
             TokenUtil.newToken(

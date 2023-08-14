@@ -6,7 +6,7 @@ function main(): void {
 
     var tokenizer = new Tokenizer(
         '<anonymous>',
-        '#hello\nsub main\n0b0101011 0xcafebabe hh 3.14 "Hello world!"'
+        '#hello\nsub main\n0b0101011 0xcafebabe hh 3.14 "Hello\\tworld!"'
     );
     var tokenizerResult: TokenizerResult = tokenizer.scan();
 
