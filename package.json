@@ -1,15 +1,15 @@
 {
-  "name": "krypta",
+  "name": "yttria",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start:dev": "npx nodemon",
     "build": "rimraf ./build && tsc",
-    "release": "rimraf ./build && npx webpack && js-beautify -r build/krypta.js",
+    "release": "rimraf ./build && npx webpack && js-beautify -r build/yttria.js",
     "clean": "rimraf ./build",
     "install-modules": "npm i",
-    "krypta": "node build/krypta.js"
+    "yttria": "node build/yttria.js"
   },
   "keywords": [],
   "author": "",

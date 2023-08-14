@@ -8,7 +8,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, './build'),
         clean: true,
-        filename: 'krypta.js'
+        filename: 'yttria.js'
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"],

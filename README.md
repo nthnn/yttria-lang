@@ -1,15 +1,15 @@
-# Krypta Programming Language
+# Yttria Programming Language
 
-Krypta is a versatile and powerful general-purpose programming language designed to provide a coherent blend of performance, expressiveness, and ease of use. Developed using TypeScript, Krypta leverages LLVM bindings to generate an Intermediate Representation (IR), which can be further compiled using GCC for optimal performance and for target architectures.
+Yttria is a versatile and powerful general-purpose programming language designed to provide a coherent blend of performance, expressiveness, and ease of use. Developed using TypeScript, Yttria leverages LLVM bindings to generate an Intermediate Representation (IR), which can be further compiled using GCC for optimal performance and for target architectures.
 
-> **Note:** Krypta is still in its development stage.
+> **Note:** Yttria is still in its development stage.
 
 ## Getting Started
 
-To contribute to the development of Krypta, you can follow the steps below by cloning the repository first:
+To contribute to the development of Yttria, you can follow the steps below by cloning the repository first:
 
 ```git
-git clone https://github.com/nthnn/krypta-lang.git
+git clone https://github.com/nthnn/yttria-lang.git
 ```
 
 **Required Softwares**
@@ -29,14 +29,14 @@ git clone https://github.com/nthnn/krypta-lang.git
 
 ## Contributing
 
-Contributions to the Krypta programming language are welcome and encouraged! To contribute, follow these steps:
+Contributions to the Yttria programming language are welcome and encouraged! To contribute, follow these steps:
 
-1. Fork the Krypta repository on GitHub.
+1. Fork the Yttria repository on GitHub.
 2. Clone your forked repository to your local machine.
 3. Create a new branch for your feature or bug fix.
 4. Make your changes and commit them with descriptive commit messages.
 5. Push your changes to your GitHub repository.
-6. Submit a pull request to the main Krypta repository.
+6. Submit a pull request to the main Yttria repository.
 
 ## License
 

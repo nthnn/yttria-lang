@@ -2,11 +2,11 @@ import { TokenUtil } from './token';
 import { Tokenizer, TokenizerResult } from './tokenizer';
 
 function main(): void {
-    console.log('Krypta Programming Language Compiler v0.0.1');
+    console.log('Yttria Programming Language Compiler v0.0.1');
 
     var tokenizer = new Tokenizer(
         '<anonymous>',
-        '#hello\nsub main\n0b0101011 0xcafebabe hh 3.14'
+        '#hello\nsub main\n0b0101011 0xcafebabe hh 3.14 "Hello world!"'
     );
     var tokenizerResult: TokenizerResult = tokenizer.scan();
 

@@ -241,6 +241,32 @@ class Tokenizer {
     private consumeString(): void {
         let sign: string = this.consume();
         var stringContent: string = '';
+
+        while(!this.isAtEnd())
+            if(this.current() == sign) {
+                this.consume();
+                break;
+            }
+            else if(this.current() == '\n') {
+                this.results.errors.push({
+                    message: "Unclosed literal encountered.",
+                    line: this.line,
+                    column: (this.column - stringContent.length) - 1
+                });
+
+                this.consume();
+            }
+            else stringContent += this.consume();
+
+        this.results.tokens.push(
+            TokenUtil.newToken(
+                this.filename,
+                stringContent,
+                (this.column - stringContent.length) - 2,
+                this.line,
+                TokenType.TOKEN_STRING
+            )
+        );
     }
 
     public scan(): TokenizerResult {
@@ -253,7 +279,7 @@ class Tokenizer {
             else if(this.current() == '#')
                 this.consumeComment();
             else if(this.current() == '\'' ||
-                this.current() == '\'')
+                this.current() == '\"')
                 this.consumeString();
             else if(TokenizerUtil.isDigit(this.current()))
                 this.consumeNumber();
