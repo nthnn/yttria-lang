@@ -219,7 +219,8 @@ class Tokenizer {
                     stringContent += this.consume();
                     if(this.isAtEnd()) {
                         this.results.errors.push({
-                            message: "Expecting escape character sequence, encountered EOF.",
+                            message: "Expecting escape character" +
+                                "sequence, encountered EOF.",
                             column: (this.column - stringContent.length) - 1,
                             line: this.line
                         });
@@ -235,7 +236,8 @@ class Tokenizer {
 
                         default:
                             this.results.errors.push({
-                                message: "Invalid character escape sequence: " + this.consume(),
+                                message: "Invalid character escape sequence: "
+                                    + this.consume(),
                                 column: (this.column - stringContent.length) - 1,
                                 line: this.line
                             });
@@ -256,6 +258,24 @@ class Tokenizer {
         );
     }
 
+    private consumeOperator(): void {
+        var image: string = this.consume();
+
+        while(!this.isAtEnd() &&
+            TokenizerUtil.isOperator(image + this.current()))
+            image += this.consume();
+
+        this.results.tokens.push(
+            TokenUtil.newToken(
+                this.filename,
+                image,
+                this.column - image.length,
+                this.line,
+                TokenType.TOKEN_OPERATOR
+            )
+        );
+    }
+
     public scan(): TokenizerResult {
         while(true) {
             if(this.isAtEnd())
@@ -268,6 +288,8 @@ class Tokenizer {
             else if(this.current() == '\'' ||
                 this.current() == '\"')
                 this.consumeString();
+            else if(TokenizerUtil.isOperator(this.current()))
+                this.consumeOperator();
             else if(TokenizerUtil.isDigit(this.current()))
                 this.consumeNumber();
             else if(TokenizerUtil.isIdentifier(this.current()))
