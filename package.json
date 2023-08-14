@@ -6,10 +6,10 @@
   "scripts": {
     "start:dev": "npx nodemon",
     "build": "rimraf ./build && tsc",
-    "release": "rimraf ./build && npx webpack && js-beautify -o build/krypta.js build/krypta.js",
+    "release": "rimraf ./build && npx webpack && js-beautify -r build/krypta.js",
     "clean": "rimraf ./build",
     "install-modules": "npm i",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "krypta": "node build/krypta.js"
   },
   "keywords": [],
   "author": "",
