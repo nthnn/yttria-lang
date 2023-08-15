@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "npx nodemon",
+    "daemon": "npx nodemon",
     "build": "rimraf ./build && tsc",
-    "release": "rimraf ./build && npx webpack && js-beautify -r build/yttria.js",
     "clean": "rimraf ./build",
     "install-modules": "npm i",
     "yttria": "node build/yttria.js"
@@ -17,14 +16,10 @@
   "devDependencies": {
     "@types/node": "^20.4.10",
     "crypto": "^1.0.1",
-    "js-beautify": "^1.14.9",
     "llvm-bindings": "^0.4.2",
     "nodemon": "^3.0.1",
     "rimraf": "^5.0.1",
-    "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.1.6"
   }
 }
