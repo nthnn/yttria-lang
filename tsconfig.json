@@ -3,14 +3,14 @@
     "target": "es2016",
     "lib": ["es6"],
     "module": "commonjs",
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "outDir": "build",
+    "rootDir": "./src",
+    "sourceMap": false,
+    "outDir": "./build",
+    "removeComments": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": [
     "node_modules/llvm-bindings/llvm-bindings.d.ts"
