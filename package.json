@@ -8,13 +8,14 @@
     "build": "rimraf ./build && tsc",
     "clean": "rimraf ./build",
     "install-modules": "npm i",
-    "yttria": "node build/yttria.js"
+    "yttria": "node build/main.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.4.10",
+    "colors": "^1.4.0",
     "crypto": "^1.0.1",
     "llvm-bindings": "^0.4.2",
     "nodemon": "^3.0.1",
