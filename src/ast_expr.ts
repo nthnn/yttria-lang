@@ -4,16 +4,15 @@ import {
     ConstantFP,
     ConstantInt,
     IRBuilder,
-    Module,
-    Type
+    Module
 } from "llvm-bindings";
 
 import { ExpressionAST } from "./ast";
+import { DataType, LLVDataType } from "./data_type";
 
-import DataType from "./data_type";
-import LLVMGlobalContext from "./llvm_context";
 import ASTError from "./ast_exception";
 import YttriaUtil from "./util";
+import YttriaRuntime from "./yttria_runtime";
 
 class ExprASTString implements ExpressionAST {
     private value: string;
@@ -46,26 +45,9 @@ class ExprASTInt implements ExpressionAST {
     private value: number;
     private bit: number;
 
-    private static typeMap: Map<number, [Type, DataType]> =
-        new Map<number, [Type, DataType]>([
-        [4, [Type.getIntNTy(LLVMGlobalContext, 4), DataType.I4]],
-        [8, [Type.getInt8Ty(LLVMGlobalContext), DataType.I8]],
-        [16, [Type.getInt16Ty(LLVMGlobalContext), DataType.I16]],
-        [32, [Type.getInt32Ty(LLVMGlobalContext), DataType.I32]],
-        [64, [Type.getInt64Ty(LLVMGlobalContext),DataType.I64]],
-        [128, [Type.getInt128Ty(LLVMGlobalContext), DataType.I128]]
-    ]);
-
     public constructor(value: number, bit: number) {
         this.value = value;
         this.bit = bit;
-    }
-
-    private appropriateType(): Type {
-        if(ExprASTInt.typeMap.has(this.bit))
-            return ExprASTInt.typeMap.get(this.bit)![0];
-
-        return Type.getIntNTy(LLVMGlobalContext, 0);
     }
     
     public visit(
@@ -74,14 +56,14 @@ class ExprASTInt implements ExpressionAST {
         block: BasicBlock
     ): Constant {
         return ConstantInt.get(
-            this.appropriateType(),
+            LLVDataType.getIntType(this.bit),
             this.value,
             true
         );
     }
 
     public type(): DataType {
-        return ExprASTInt.typeMap.get(this.bit)![1];
+        return LLVDataType.getIntDataType(this.bit);
     }
 
     public resolve(): void { }
@@ -91,24 +73,9 @@ class ExprASTFloat implements ExpressionAST {
     private value: number;
     private bit: number;
 
-    private static typeMap: Map<number, [Type, DataType]> =
-        new Map<number, [Type, DataType]>([
-        [16, [Type.getBFloatTy(LLVMGlobalContext), DataType.F16]],
-        [32, [Type.getFloatTy(LLVMGlobalContext), DataType.F32]],
-        [64, [Type.getDoubleTy(LLVMGlobalContext), DataType.F64]],
-        [128, [Type.getPPC_FP128Ty(LLVMGlobalContext), DataType.F128]],
-    ]);
-
     public constructor(value: number, bit: number) {
         this.value = value;
         this.bit = bit;
-    }
-
-    private appropriateType(): Type {
-        if(ExprASTFloat.typeMap.has(this.bit))
-            return ExprASTFloat.typeMap.get(this.bit)![0];
-
-        return Type.getIntNTy(LLVMGlobalContext, 0);
     }
 
     public visit(
@@ -117,13 +84,13 @@ class ExprASTFloat implements ExpressionAST {
         block: BasicBlock
     ): Constant {
         return ConstantFP.get(
-            this.appropriateType(),
+            this.type().getLLVMType(),
             this.value
         );
     }
 
     public type(): DataType {
-        return ExprASTFloat.typeMap.get(this.bit)![1];
+        return LLVDataType.getFloatDataType(this.bit);
     }
 
     public resolve(): void { }
@@ -139,12 +106,33 @@ class ExprASTUnary implements ExpressionAST {
     }
 
     public visit(builder: IRBuilder, module: Module, block: BasicBlock): Constant {
-        if(this.operator == '-' ||
-            this.operator == '+')
-            return builder.CreateNeg(
+        if(this.operator == '-') {
+            if(DataType.isOfFloatType(this.type()))
+                return builder.CreateFNeg(
+                    this.expr.visit(builder, module, block),
+                    YttriaUtil.generateRandomHash()
+                ) as Constant;
+            else return builder.CreateNeg(
                 this.expr.visit(builder, module, block),
                 YttriaUtil.generateRandomHash()
             ) as Constant;
+        }
+        else if(this.operator == '+') {
+            const type: DataType = this.type();
+
+            if(DataType.isOfIntType(type))
+                return builder.CreateCall(
+                    YttriaRuntime.iabs(module, type.getLLVMType()),
+                    [this.expr.visit(builder, module, block)],
+                    YttriaUtil.generateRandomHash()
+                ) as unknown as Constant;
+            else if(DataType.isOfFloatType(type))
+                return builder.CreateCall(
+                    YttriaRuntime.fpabs(module, type),
+                    [this.expr.visit(builder, module, block)],
+                    YttriaUtil.generateRandomHash()
+                ) as unknown as Constant;
+        }
         else if(this.operator == '~')
             return builder.CreateNot(
                 this.expr.visit(builder, module, block),
@@ -161,4 +149,9 @@ class ExprASTUnary implements ExpressionAST {
     public resolve(): void { }
 }
 
-export { ExprASTString, ExprASTInt, ExprASTFloat };
+export {
+    ExprASTString,
+    ExprASTInt,
+    ExprASTFloat,
+    ExprASTUnary
+};
