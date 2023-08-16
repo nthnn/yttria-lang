@@ -11,10 +11,12 @@ import {
 import { TokenUtil } from './token';
 import { Tokenizer, TokenizerResult } from './tokenizer';
 import { ExprASTFloat, ExprASTInt, ExprASTString } from './ast_expr';
+import { hideBin } from 'yargs/helpers';
 
 import colors from 'colors';
 import LLVMGlobalContext from './llvm_context';
 import YttriaRuntime from './yttria_runtime';
+import yargs from 'yargs';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
@@ -80,51 +82,46 @@ function llvmTest() {
     console.log('\nModule:\n\n' + module.print());
 }
 
-function printBanner() {
+function printBanner(args: any) {
     console.log();
     console.log('┌──────────────────────────────────────┐');
     console.log('│                                      │');
 
     // Here comes the wizardry.
-    console.log(
-        '│' + '  ▀▀▌───────▐▀▀'.gray + '                       │'
-    );
-    console.log(
-        '│' + '  ▄▀'.gray + '░◌░░░░░░░'.blue + '▀▄'.gray +
-        '  ┓┏            •'.cyan.bold + '      │'
-    );
-    console.log(
-        '│' + ' ▐'.gray + '░░◌░'.blue + '▄▀██▄█'.rainbow +
-        '░░░'.blue + '▌'.gray + ' ┗┫  ╋  ╋  ┏┓  ┓  ┏┓'.cyan.bold +
-        '  │'
-    );
-    console.log(
-        '│' + ' ▐'.gray + '░░░'.blue + '▀████▀▄'.rainbow +
-        '░░░'.blue + '▌'.gray + ' ┗┛  ┗  ┗  ┛   ┗  ┗┻'.cyan.bold +
-        '  │'
-    );
-    console.log(
-        '│' + ' ▐'.gray + '░░░░░░░░░░░░░'.blue + '▌ '.gray +
-        'Programming Language'.bgRed + ' │'
-    );
-    console.log(
-        '│' + '  ▀▄▄▄▄▄▄▄▄▄▄▄▀'.gray +
-        '  v0.0.1'.yellow.bold + '               │'
-    );
+    console.log('│' + '  ▀▀▌' + '───────'.gray + '▐▀▀' + '                       │');
+    console.log('│' + '  ▄▀' + '░'.blue + '◌'.bold + '░░░░░░░'.blue + '▀▄' + '  ┓┏            •'.cyan.bold + '      │');
+    console.log('│' + ' ▐' + '░░'.blue + '◌'.bold + '░'.blue + '▄▀██▄█' + '░░░'.blue + '▌' + ' ┗┫  ╋  ╋  ┏┓  ┓  ┏┓'.cyan.bold + '  │');
+    console.log('│' + ' ▐' + '░░░'.blue + '▀████▀▄' + '░░░'.blue + '▌' + ' ┗┛  ┗  ┗  ┛   ┗  ┗┻'.cyan.bold + '  │');
+    console.log('│' + ' ▐' + '░░░░░░░░░░░░░'.blue + '▌ ' + 'Programming Language'.bgRed + ' │');
+    console.log('│' + '  ▀▄▄▄▄▄▄▄▄▄▄▄▀' + '  v0.0.1'.yellow.bold + '               │');
+    console.log('│                                      │');
 
-    console.log('│                                      │');
-    console.log('├──────────────────────────────────────┤');
-    console.log('│ Use ' + '-h'.italic + ' to print help screen.         │');
-    console.log('│                                      │');
-    console.log('│ For more details, visit:             │');
-    console.log('│ ' + 'https://nthnn.github.io/yttria-lang'.underline + '  │');
-    console.log('└──────────────────────────────────────┘');
-    console.log();
+    if(args.help || args.h ||
+        args._.length == 0) {
+
+        console.log('├──────────────────────────────────────┤');
+        console.log('│ Use ' + '-h'.italic + ' to print help screen.         │');
+        console.log('│                                      │');
+        console.log('│ For more details, visit:             │');
+        console.log('│ ' + 'https://nthnn.github.io/yttria-lang'.underline + '  │');
+        console.log('└──────────────────────────────────────┘');
+        console.log();
+    }
+    else console.log('└──────────────────────────────────────┘\n');
 }
 
 function main(): void {
+    const args = yargs(hideBin(process.argv))
+        .option('help', {
+            alias: 'h',
+            type: 'boolean'
+        })
+        .showHelp(()=> { })
+        .exitProcess(false)
+        .argv;
+
     colors.enable();
-    printBanner();
+    printBanner(args);
 }
 
 main();
