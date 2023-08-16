@@ -10,7 +10,7 @@ import {
 
 import { TokenUtil } from './token';
 import { Tokenizer, TokenizerResult } from './tokenizer';
-import { ExprASTFloat, ExprASTInt, ExprASTString } from './ast_expr';
+import { ExprASTFloat, ExprASTInt, ExprASTString, ExprASTUnary } from './ast_expr';
 import { hideBin } from 'yargs/helpers';
 
 import colors from 'colors';
@@ -44,8 +44,9 @@ function llvmTest() {
     const module: Module = new Module('test', LLVMGlobalContext);
     const builder: IRBuilder = new IRBuilder(LLVMGlobalContext);
 
-    const expr1: ExprASTString = new ExprASTString("Value is '%.*e'.\n");
-    const expr2: ExprASTFloat = new ExprASTFloat(3.141592653589793238462643383279502884197, 128);
+    const expr1: ExprASTString = new ExprASTString("Value is '%d'.\n");
+    const expr2: ExprASTInt = new ExprASTInt(-3, 128);
+    const expr3: ExprASTUnary = new ExprASTUnary('+', expr2);
 
     const main: BasicBlock = BasicBlock.Create(
         LLVMGlobalContext,
@@ -67,7 +68,7 @@ function llvmTest() {
         YttriaRuntime.render(module),
         [
             expr1.visit(builder, module, main),
-            expr2.visit(builder, module, main)
+            expr3.visit(builder, module, main)
         ],
         'printfCall',
     );
@@ -121,7 +122,8 @@ function main(): void {
         .argv;
 
     colors.enable();
-    printBanner(args);
+    //printBanner(args);
+    llvmTest();
 }
 
 main();
