@@ -1,0 +1,5 @@
+- Add ! operator support on ExprASTUnary class.
+- AST for 'render' statement.
+- Detect overflow and underflow for integer and floating-point values.
+- Binary AST operations for +, -, /, *, ^, %, &, and |.
+- Equality AST operations for ==, !=, <, >, <=, and >=.
