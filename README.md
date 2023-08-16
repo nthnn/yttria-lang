@@ -23,9 +23,13 @@ git clone https://github.com/nthnn/yttria-lang.git
 
 - `npm run build` - For cleaning up existing multiple source file builds, and then re-building again.
 
-- `npm run start:dev` - Command for starting a listening nodemon every code changes.
+- `npm run daemon` - Command for starting a listening nodemon every code changes.
 
 - `npm run clean` - Cleaning up all the build files.
+
+- `npm run pack` - Package up the latest code base to generate executables for Linux, macOS, Windows, and Alpine.
+
+- `npm run yttria` - Run the latest built Yttria on console.
 
 ## Contributing
 
