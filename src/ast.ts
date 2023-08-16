@@ -7,7 +7,11 @@ import {
 
 import DataType from './data_type';
 
-abstract class ExpressionAST {
+abstract class ASTNode {
+    public abstract resolve(): void;
+}
+
+abstract class ExpressionAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
         module: Module,
@@ -16,7 +20,7 @@ abstract class ExpressionAST {
     public abstract type(): DataType;
 }
 
-abstract class StatementAST {
+abstract class StatementAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
         module: Module,
@@ -24,4 +28,4 @@ abstract class StatementAST {
     ): void;
 }
 
-export { ExpressionAST, StatementAST};
+export { ASTNode, ExpressionAST, StatementAST};

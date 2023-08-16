@@ -9,10 +9,11 @@ import {
 } from "llvm-bindings";
 
 import { ExpressionAST } from "./ast";
-import { createHash } from "crypto";
 
 import DataType from "./data_type";
 import LLVMGlobalContext from "./llvm_context";
+import ASTError from "./ast_exception";
+import YttriaUtil from "./util";
 
 class ExprASTString implements ExpressionAST {
     private value: string;
@@ -28,10 +29,7 @@ class ExprASTString implements ExpressionAST {
     ): Constant {
         return builder.CreateGlobalStringPtr(
             this.value,
-            '__' + createHash('md5')
-                .update(this.value)
-                .digest('hex')
-                .substring(0, 10),
+            YttriaUtil.generateHash(this.value),
             0,
             module
         );
@@ -40,6 +38,8 @@ class ExprASTString implements ExpressionAST {
     public type(): DataType {
         return DataType.STRING;
     }
+
+    public resolve(): void { }
 }
 
 class ExprASTInt implements ExpressionAST {
@@ -83,6 +83,8 @@ class ExprASTInt implements ExpressionAST {
     public type(): DataType {
         return ExprASTInt.typeMap.get(this.bit)![1];
     }
+
+    public resolve(): void { }
 }
 
 class ExprASTFloat implements ExpressionAST {
@@ -123,6 +125,40 @@ class ExprASTFloat implements ExpressionAST {
     public type(): DataType {
         return ExprASTFloat.typeMap.get(this.bit)![1];
     }
+
+    public resolve(): void { }
+}
+
+class ExprASTUnary implements ExpressionAST {
+    private operator: string;
+    private expr: ExpressionAST;
+
+    public constructor(operator: string, expr: ExpressionAST) {
+        this.operator = operator;
+        this.expr = expr;
+    }
+
+    public visit(builder: IRBuilder, module: Module, block: BasicBlock): Constant {
+        if(this.operator == '-' ||
+            this.operator == '+')
+            return builder.CreateNeg(
+                this.expr.visit(builder, module, block),
+                YttriaUtil.generateRandomHash()
+            ) as Constant;
+        else if(this.operator == '~')
+            return builder.CreateNot(
+                this.expr.visit(builder, module, block),
+                YttriaUtil.generateRandomHash()
+            ) as Constant;
+
+        throw new ASTError('Invalid operator for unary AST.');
+    }
+
+    public type(): DataType {
+        return this.expr.type();
+    }
+
+    public resolve(): void { }
 }
 
 export { ExprASTString, ExprASTInt, ExprASTFloat };
