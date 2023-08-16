@@ -1,10 +1,11 @@
 {
   "name": "yttria",
   "version": "1.0.0",
-  "description": "",
+  "description": "Yttria programming language using LLVM bindings in TypeScript.",
   "main": "index.js",
   "scripts": {
     "daemon": "npx nodemon",
+    "quick": "ts-node src/yttria.ts",
     "build": "npm run clean && tsc",
     "clean": "rimraf ./build && rimraf ./dist",
     "install-modules": "npm i",
@@ -12,7 +13,7 @@
     "yttria": "node ./build/yttria.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "nthnn",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.4.10",
@@ -24,5 +25,9 @@
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@types/yargs": "^17.0.24",
+    "yargs": "^17.7.2"
   }
 }
