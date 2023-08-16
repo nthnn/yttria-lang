@@ -1,23 +1,139 @@
+import { Type } from "llvm-bindings";
+import LLVMGlobalContext from "./llvm_context";
+
 class DataType {
     private name: string;
+    private bit: number;
+    private llvmType: Type;
 
-    public constructor(name: string) {
+    public constructor(name: string, bit: number, llvmType: Type | undefined) {
         this.name = name;
+        this.bit = bit;
+        this.llvmType = llvmType as Type;
     }
 
-    public static STRING: DataType = new DataType("string");
+    public bitSize(): number {
+        return this.bit;
+    }
 
-    public static I4: DataType = new DataType("i4");
-    public static I8: DataType = new DataType("i8");
-    public static I16: DataType = new DataType("i16");
-    public static I32: DataType = new DataType("i32");
-    public static I64: DataType = new DataType("i64");
-    public static I128: DataType = new DataType("i128");
+    public toString(): string {
+        return this.name;
+    }
 
-    public static F16: DataType = new DataType("f16");
-    public static F32: DataType = new DataType("f32");
-    public static F64: DataType = new DataType("f64");
-    public static F128: DataType = new DataType("f128");
+    public getLLVMType(): Type {
+        return this.llvmType;
+    }
+
+    public static UNKNOWN: DataType =
+        new DataType("unknown", 0, undefined);
+    public static STRING: DataType =
+        new DataType("string", 0, undefined);
+    public static BOOL: DataType =
+        new DataType("bool", 1, undefined);
+
+    public static I4: DataType =
+        new DataType("i4", 4, Type.getIntNTy(LLVMGlobalContext, 4));
+    public static I8: DataType =
+        new DataType("i8", 8, Type.getIntNTy(LLVMGlobalContext, 8));
+    public static I16: DataType =
+        new DataType("i16", 16, Type.getInt16Ty(LLVMGlobalContext));
+    public static I32: DataType =
+        new DataType("i32", 32, Type.getInt32Ty(LLVMGlobalContext));
+    public static I64: DataType =
+        new DataType("i64", 64, Type.getInt64Ty(LLVMGlobalContext));
+    public static I128: DataType =
+        new DataType("i128", 128, Type.getInt128Ty(LLVMGlobalContext));
+
+    public static F64: DataType =
+        new DataType("f64", 64, Type.getDoubleTy(LLVMGlobalContext));
+    public static F128: DataType =
+        new DataType("f128", 128, Type.getPPC_FP128Ty(LLVMGlobalContext));
+
+    public static isOfIntType(type: DataType): boolean {
+        switch(type) {
+            case DataType.I4:
+            case DataType.I8:
+            case DataType.I16:
+            case DataType.I32:
+            case DataType.I64:
+            case DataType.I128:
+                return true;
+        }
+
+        return false;
+    }
+
+    public static isOfFloatType(type: DataType): boolean {
+        switch(type) {
+            case DataType.F64:
+            case DataType.F128:
+                return true;
+        }
+
+        return false;
+    }
 }
 
-export default DataType;
+class LLVDataType {
+    private static floatTypeMap: Map<number, [Type, DataType]> =
+        new Map<number, [Type, DataType]>([
+        [64, [Type.getDoubleTy(LLVMGlobalContext), DataType.F64]],
+        [128, [Type.getPPC_FP128Ty(LLVMGlobalContext), DataType.F128]],
+    ]);
+
+    private static intTypeMap: Map<number, [Type, DataType]> =
+        new Map<number, [Type, DataType]>([
+        [4, [Type.getIntNTy(LLVMGlobalContext, 4), DataType.I4]],
+        [8, [Type.getInt8Ty(LLVMGlobalContext), DataType.I8]],
+        [16, [Type.getInt16Ty(LLVMGlobalContext), DataType.I16]],
+        [32, [Type.getInt32Ty(LLVMGlobalContext), DataType.I32]],
+        [64, [Type.getInt64Ty(LLVMGlobalContext),DataType.I64]],
+        [128, [Type.getInt128Ty(LLVMGlobalContext), DataType.I128]]
+    ]);
+
+    public static getFloatType(bit: number): Type {
+        if(LLVDataType.floatTypeMap.has(bit))
+            return LLVDataType.floatTypeMap.get(bit)![0];
+
+        return Type.getFloatTy(LLVMGlobalContext);
+    }
+
+    public static getFloatDataType(bit: number): DataType {
+        switch(bit) {
+            case 64:
+                return DataType.F64;
+            case 128:
+                return DataType.F128;
+        }
+
+        return DataType.UNKNOWN;
+    }
+
+    public static getIntType(bit: number): Type {
+        if(LLVDataType.intTypeMap.has(bit))
+            return LLVDataType.intTypeMap.get(bit)![0];
+
+        return Type.getIntNTy(LLVMGlobalContext, 0);
+    }
+
+    public static getIntDataType(bit: number): DataType {
+        switch(bit) {
+            case 4:
+                return DataType.I4;
+            case 8:
+                return DataType.I8;
+            case 16:
+                return DataType.I16;
+            case 32:
+                return DataType.I32;
+            case 64:
+                return DataType.I64;
+            case 128:
+                return DataType.I128;
+        }
+
+        return DataType.UNKNOWN
+    }
+}
+
+export { DataType, LLVDataType };
