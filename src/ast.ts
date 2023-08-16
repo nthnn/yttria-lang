@@ -5,7 +5,7 @@ import {
     Module
 } from 'llvm-bindings';
 
-import DataType from './data_type';
+import { DataType } from './data_type';
 
 abstract class ASTNode {
     public abstract resolve(): void;
@@ -28,4 +28,8 @@ abstract class StatementAST extends ASTNode {
     ): void;
 }
 
-export { ASTNode, ExpressionAST, StatementAST};
+export {
+    ASTNode,
+    ExpressionAST,
+    StatementAST
+};
