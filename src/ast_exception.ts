@@ -1,4 +1,4 @@
-class ASTError {
+export default class ASTError {
     private message: string;
 
     public constructor(message: string) {
@@ -9,5 +9,3 @@ class ASTError {
         return this.message;
     }
 }
-
-export default ASTError;
