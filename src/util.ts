@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "crypto";
 
-class YttriaUtil {
+export default class YttriaUtil {
     public static generateRandomHash(): string {
         return '__' + randomUUID()
         .replace('-', '').substring(0, 12);
@@ -13,5 +13,3 @@ class YttriaUtil {
         .substring(0, 10);
     }
 }
-
-export default YttriaUtil;
