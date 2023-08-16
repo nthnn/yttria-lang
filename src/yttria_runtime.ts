@@ -1,7 +1,7 @@
 import { Function, FunctionType, GlobalValue, Module, Type } from "llvm-bindings";
 import LLVMGlobalContext from "./llvm_context";
 
-class CStdlib {
+class YttriaRuntime {
     public static render(module: Module): Function {
         return Function.Create(
             FunctionType.get(
@@ -16,4 +16,4 @@ class CStdlib {
     }
 }
 
-export default CStdlib;
+export default YttriaRuntime;
