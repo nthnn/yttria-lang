@@ -52,8 +52,8 @@ function llvmTest() {
     const builder: IRBuilder = new IRBuilder(LLVMGlobalContext);
 
     const expr1: ExprASTString = new ExprASTString(nullToken, "Value is '%g'.\n");
-    const expr2: ExprASTFloat = new ExprASTFloat(nullToken, 3.14, 32);
-    const expr3: ExprASTUnary = new ExprASTUnary(nullToken, '+', expr2);
+    const expr2: ExprASTFloat = new ExprASTFloat(nullToken, 3.14, 64);
+    const expr3: ExprASTUnary = new ExprASTUnary(nullToken, '-', expr2);
 
     const main: BasicBlock = BasicBlock.Create(
         LLVMGlobalContext,
@@ -75,7 +75,7 @@ function llvmTest() {
         YttriaRuntime.render(module),
         [
             expr1.visit(builder, module, main),
-            expr2.visit(builder, module, main)
+            expr3.visit(builder, module, main)
         ]
     );
     builder.CreateRet(ConstantInt.get(builder.getInt32Ty(), 0, true));

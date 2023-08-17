@@ -16,6 +16,7 @@ import ASTError from "./ast_exception";
 import YttriaUtil from "./util";
 import YttriaRuntime from "./yttria_runtime";
 import LLVMGlobalContext from "./llvm_context";
+import { Context } from "vm";
 
 class ExprASTBool implements ExpressionAST {
     private value: boolean;
@@ -226,14 +227,17 @@ class ExprASTUnary implements ExpressionAST {
     }
 
     public visit(builder: IRBuilder, module: Module, block: BasicBlock): Constant {
+        const visited: Constant =
+            this.expr.visit(builder, module, block);
+
         if(this.operator == '-') {
             if(DataType.isOfFloatType(this.type()))
                 return builder.CreateFNeg(
-                    this.expr.visit(builder, module, block),
+                    visited,
                     YttriaUtil.generateRandomHash()
                 ) as Constant;
             else return builder.CreateNeg(
-                this.expr.visit(builder, module, block),
+                visited,
                 YttriaUtil.generateRandomHash()
             ) as Constant;
         }
@@ -243,21 +247,23 @@ class ExprASTUnary implements ExpressionAST {
             if(DataType.isOfIntType(type))
                 return builder.CreateCall(
                     YttriaRuntime.iabs(module, type.getLLVMType()),
-                    [this.expr.visit(builder, module, block)],
+                    [visited],
                     YttriaUtil.generateRandomHash()
                 ) as unknown as Constant;
             else if(DataType.isOfFloatType(type))
                 return builder.CreateCall(
                     YttriaRuntime.fpabs(module, type),
-                    [this.expr.visit(builder, module, block)],
+                    [visited],
                     YttriaUtil.generateRandomHash()
                 ) as unknown as Constant;
         }
         else if(this.operator == '~')
             return builder.CreateNot(
-                this.expr.visit(builder, module, block),
+                visited,
                 YttriaUtil.generateRandomHash()
             ) as Constant;
+        else if(this.operator == '!')
+            return builder.CreateNot(visited) as Constant;
 
         throw new ASTError('Invalid operator for unary AST.');
     }
