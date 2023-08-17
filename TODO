@@ -1,3 +1,2 @@
-- AST for 'render' statement.
 - Binary AST operations for +, -, /, *, ^, %, &, and |.
 - Equality AST operations for ==, !=, <, >, <=, and >=.
