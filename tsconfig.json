@@ -5,11 +5,11 @@
     "module": "CommonJS",
     "rootDir": "./src",
     "sourceMap": false,
-    "allowJs": true,
     "outDir": "./build",
     "removeComments": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "strict": true,
     "skipLibCheck": true
   },

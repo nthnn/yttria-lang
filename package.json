@@ -16,6 +16,7 @@
   "author": "nthnn",
   "license": "ISC",
   "devDependencies": {
+    "@types/big.js": "^6.2.0",
     "@types/node": "^20.4.10",
     "colors": "^1.4.0",
     "crypto": "^1.0.1",
