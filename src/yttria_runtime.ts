@@ -1,6 +1,15 @@
-import llvm, { Function, FunctionType, GlobalValue, Module, Type } from "llvm-bindings";
+import {
+    BasicBlock,
+    Function,
+    FunctionType,
+    GlobalValue,
+    IRBuilder,
+    Module,
+    Type
+} from "llvm-bindings";
+import { DataType } from "./data_type";
+
 import LLVMGlobalContext from "./llvm_context";
-import { DataType, LLVDataType } from "./data_type";
 
 export default class YttriaRuntime {
     public static render(module: Module): Function {
@@ -18,7 +27,7 @@ export default class YttriaRuntime {
 
     public static iabs(module: Module, type: Type): Function {
         return Function.Create(
-            FunctionType.get(type, [type], true),
+            FunctionType.get(type, [type], false),
             GlobalValue.LinkageTypes.ExternalLinkage,
             'abs',
             module
@@ -29,7 +38,7 @@ export default class YttriaRuntime {
         const llvmType: Type = type.getLLVMType();
 
         return Function.Create(
-            FunctionType.get(llvmType, [llvmType], true),
+            FunctionType.get(llvmType, [llvmType], false),
             GlobalValue.LinkageTypes.ExternalLinkage,
             'fabs',
             module
