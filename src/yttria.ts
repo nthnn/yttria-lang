@@ -1,8 +1,5 @@
 import {
     BasicBlock,
-    ConstantInt,
-    Function,
-    FunctionType,
     IRBuilder,
     Module,
     verifyModule
@@ -10,7 +7,7 @@ import {
 
 import { Token, TokenUtil } from './token';
 import { Tokenizer, TokenizerResult } from './tokenizer';
-import { ExprASTFloat, ExprASTInt, ExprASTString, ExprASTUnary } from './ast_expr';
+import { ExprASTBool, ExprASTFloat, ExprASTInt, ExprASTString, ExprASTUnary } from './ast_expr';
 import { hideBin } from 'yargs/helpers';
 
 import colors from 'colors';
@@ -19,6 +16,7 @@ import YttriaRuntime from './yttria_runtime';
 import yargs from 'yargs';
 import YttriaUtil from './util';
 import { ASTNode, ExpressionAST } from './ast';
+import { StmtASTMain, StmtASTRender } from './ast_stmt';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
@@ -49,42 +47,19 @@ function llvmTest() {
         YttriaUtil.generateRandomHash(),
         LLVMGlobalContext
     );
+
+    const expr: ExprASTString = new ExprASTString(nullToken, 'Hello, world!\n');
+    const body: StmtASTRender = new StmtASTRender(nullToken, expr);
+    const main: StmtASTMain = new StmtASTMain(nullToken, body);
+
     const builder: IRBuilder = new IRBuilder(LLVMGlobalContext);
+    main.visit(builder, module);
 
-    const expr1: ExprASTString = new ExprASTString(nullToken, "Value is '%g'.\n");
-    const expr2: ExprASTFloat = new ExprASTFloat(nullToken, 3.14, 64);
-    const expr3: ExprASTUnary = new ExprASTUnary(nullToken, '-', expr2);
-
-    const main: BasicBlock = BasicBlock.Create(
-        LLVMGlobalContext,
-        'entry',
-        Function.Create(
-            FunctionType.get(
-                builder.getInt32Ty(),
-                [],
-                false
-            ),
-            Function.LinkageTypes.ExternalLinkage,
-            'main',
-            module
-        )
-    );
-
-    builder.SetInsertPoint(main);
-    builder.CreateCall(
-        YttriaRuntime.render(module),
-        [
-            expr1.visit(builder, module, main),
-            expr3.visit(builder, module, main)
-        ]
-    );
-    builder.CreateRet(ConstantInt.get(builder.getInt32Ty(), 0, true));
+    console.log('\nModule:\n\n' + module.print() + '\n');
 
     const verifyResult = verifyModule(module);
     if(verifyResult)
         return;
-
-    console.log('\nModule:\n\n' + module.print());
 }
 
 function printBanner(args: any) {
