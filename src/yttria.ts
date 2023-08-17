@@ -16,6 +16,7 @@ import {
 
 import {
     ExprASTBool,
+    ExprASTEquality,
     ExprASTFloat,
     ExprASTInt,
     ExprASTString,
@@ -64,8 +65,10 @@ function llvmTest() {
         LLVMGlobalContext
     );
 
-    const expr: ExprASTString = new ExprASTString(nullToken, 'Hello, world!\n');
-    const body: StmtASTRender = new StmtASTRender(nullToken, expr);
+    const expr1: ExprASTString = new ExprASTString(nullToken, 'hi');
+    const expr2: ExprASTString = new ExprASTString(nullToken, 'hi');
+    const cmp: ExprASTEquality = new ExprASTEquality(nullToken, '==', expr1, expr2);
+    const body: StmtASTRender = new StmtASTRender(nullToken, cmp);
     const main: StmtASTMain = new StmtASTMain(nullToken, body);
 
     const builder: IRBuilder = new IRBuilder(LLVMGlobalContext);
@@ -120,9 +123,9 @@ function main(): void {
         .argv;
 
     colors.enable();
-    printBanner(args);
+    //printBanner(args);
 
-    //llvmTest();
+    llvmTest();
     //tokenizerTest();
 }
 
