@@ -1,5 +1,19 @@
-import { IRBuilder, Function, Module, BasicBlock, Constant, FunctionType, ConstantInt } from "llvm-bindings";
-import { ASTResolveResults, ExpressionAST, StatementAST } from "./ast";
+import {
+    IRBuilder,
+    Function,
+    Module,
+    BasicBlock,
+    Constant,
+    FunctionType,
+    ConstantInt
+} from "llvm-bindings";
+
+import {
+    ASTResolveResults,
+    ExpressionAST,
+    StatementAST
+} from "./ast";
+
 import { Token } from "./token";
 import { DataType } from "./data_type";
 import { ExprASTString } from "./ast_expr";
@@ -11,7 +25,10 @@ class StmtASTMain implements StatementAST {
     private mark: Token;
     private body: StatementAST;
 
-    public constructor(mark: Token, body: StatementAST) {
+    public constructor(
+        mark: Token,
+        body: StatementAST
+    ) {
         this.mark = mark;
         this.body = body;
     }
@@ -20,6 +37,7 @@ class StmtASTMain implements StatementAST {
         builder: IRBuilder,
         module: Module
     ): void {
+
         const main: BasicBlock = BasicBlock.Create(
             LLVMGlobalContext,
             'entry',
@@ -43,8 +61,9 @@ class StmtASTMain implements StatementAST {
         );
     }
 
-    public resolve(results: ASTResolveResults): void {
-    }
+    public resolve(
+        results: ASTResolveResults
+    ): void { }
 
     public marker(): Token {
         return this.mark;
@@ -55,7 +74,10 @@ class StmtASTRender implements StatementAST {
     private mark: Token;
     private expr: ExpressionAST;
 
-    public constructor(mark: Token, expr: ExpressionAST) {
+    public constructor(
+        mark: Token,
+        expr: ExpressionAST
+    ) {
         this.mark = mark;
         this.expr = expr;
     }
@@ -66,10 +88,12 @@ class StmtASTRender implements StatementAST {
     ): void {
         let formatter: string = "";
         let formatted: Constant = this.expr.visit(builder, module);
+
         const dataType: DataType = this.expr.type();
 
         if(DataType.isOfIntType(dataType) ||
             dataType == DataType.BOOL) {
+
             if(dataType == DataType.I64)
                 formatter = '%llu';
             else formatter = '%d';
@@ -98,4 +122,7 @@ class StmtASTRender implements StatementAST {
     }
 }
 
-export { StmtASTMain, StmtASTRender };
+export {
+    StmtASTMain,
+    StmtASTRender
+};

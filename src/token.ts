@@ -1,4 +1,4 @@
-import TokenType from "./token_types";
+import { TokenType } from "./token_types";
 
 interface Token {
     image: string;
@@ -16,6 +16,7 @@ class TokenUtil {
         line: number,
         type: TokenType
     ): Token {
+
         return {
             filename: filename,
             image: image,
@@ -33,4 +34,7 @@ class TokenUtil {
     }
 }
 
-export { Token, TokenUtil };
+export {
+    Token,
+    TokenUtil
+};

@@ -1,5 +1,4 @@
 import {
-    BasicBlock,
     Constant,
     ConstantFP,
     ConstantInt,
@@ -21,7 +20,10 @@ class ExprASTBool implements ExpressionAST {
     private value: boolean;
     public mark: Token;
 
-    public constructor(mark: Token, value: boolean) {
+    public constructor(
+        mark: Token,
+        value: boolean
+    ) {
         this.mark = mark;
         this.value = value;
     }
@@ -30,6 +32,7 @@ class ExprASTBool implements ExpressionAST {
         builder: IRBuilder,
         module: Module
     ): Constant {
+
         return ConstantInt.get(
             Type.getIntNTy(LLVMGlobalContext, 1),
             this.value ? 1 : 0,
@@ -41,7 +44,9 @@ class ExprASTBool implements ExpressionAST {
         return DataType.BOOL;
     }
 
-    public resolve(results: ASTResolveResults): void { }
+    public resolve(
+        results: ASTResolveResults
+    ): void { }
 
     public marker(): Token {
         return this.mark;
@@ -52,7 +57,10 @@ class ExprASTString implements ExpressionAST {
     private value: string;
     private mark: Token;
 
-    public constructor(mark: Token, value: string) {
+    public constructor(
+        mark: Token,
+        value: string
+    ) {
         this.mark = mark;
         this.value = value;
     }
@@ -61,11 +69,11 @@ class ExprASTString implements ExpressionAST {
         builder: IRBuilder,
         module: Module
     ): Constant {
+
         return builder.CreateGlobalStringPtr(
             this.value,
             YttriaUtil.generateHash(this.value),
-            0,
-            module
+            0, module
         );
     }
 
@@ -73,7 +81,9 @@ class ExprASTString implements ExpressionAST {
         return DataType.STRING;
     }
 
-    public resolve(results: ASTResolveResults): void { }
+    public resolve(
+        results: ASTResolveResults
+    ): void { }
 
     public marker(): Token {
         return this.mark;
@@ -85,7 +95,11 @@ class ExprASTInt implements ExpressionAST {
     private bit: number;
     private mark: Token;
 
-    public constructor(mark: Token, value: BigInt, bit: number) {
+    public constructor(
+        mark: Token,
+        value: BigInt,
+        bit: number
+    ) {
         this.mark = mark;
         this.value = value;
         this.bit = bit;
@@ -95,6 +109,7 @@ class ExprASTInt implements ExpressionAST {
         builder: IRBuilder,
         module: Module
     ): Constant {
+
         return ConstantInt.get(
             LLVMDataType.getIntType(this.bit),
             Number(this.value),
@@ -112,15 +127,18 @@ class ExprASTInt implements ExpressionAST {
         type: string,
         results: ASTResolveResults
     ): void {
+
         if(this.value < min)
             results.errors.set(
                 this.marker(),
-                'Underflow value for ' + type + ' type: ' + this.value.toString()
+                'Underflow value for ' + type +
+                ' type: ' + this.value.toString()
             );
         else if(this.value > max)
             results.errors.set(
                 this.marker(),
-                'Overflow value for ' + type + ' type: ' + this.value.toString()
+                'Overflow value for ' + type +
+                ' type: ' + this.value.toString()
             );
     }
 
@@ -179,7 +197,11 @@ class ExprASTFloat implements ExpressionAST {
     private bit: number;
     private mark: Token;
 
-    public constructor(mark: Token, value: number, bit: number) {
+    public constructor(
+        mark: Token,
+        value: number,
+        bit: number
+    ) {
         this.mark = mark;
         this.value = value;
         this.bit = bit;
@@ -189,6 +211,7 @@ class ExprASTFloat implements ExpressionAST {
         builder: IRBuilder,
         module: Module
     ): Constant {
+
         return ConstantFP.get(
             this.type().getLLVMType(),
             this.value
@@ -214,8 +237,8 @@ class ExprASTUnary implements ExpressionAST {
     public constructor(
         mark: Token,
         operator:
-        string, expr: ExpressionAST) {
-
+        string, expr: ExpressionAST
+    ) {
         this.mark = mark;
         this.operator = operator;
         this.expr = expr;
@@ -225,6 +248,7 @@ class ExprASTUnary implements ExpressionAST {
         builder: IRBuilder,
         module: Module
     ): Constant {
+
         const visited: Constant =
             this.expr.visit(builder, module);
 

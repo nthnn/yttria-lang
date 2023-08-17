@@ -1,5 +1,4 @@
 import {
-    BasicBlock,
     Constant,
     IRBuilder,
     Module
@@ -14,14 +13,18 @@ interface ASTResolveResults {
 }
 
 abstract class ASTNode {
-    public abstract resolve(results: ASTResolveResults): void;
+    public abstract resolve(
+        results: ASTResolveResults
+    ): void;
+
     public abstract marker(): Token;
 }
 
 abstract class ExpressionAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
-        module: Module): Constant;
+        module: Module
+    ): Constant;
 
     public abstract type(): DataType;
 }
@@ -29,7 +32,8 @@ abstract class ExpressionAST extends ASTNode {
 abstract class StatementAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
-        module: Module): void;
+        module: Module
+    ): void;
 }
 
 export {

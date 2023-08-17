@@ -1,9 +1,7 @@
 import {
-    BasicBlock,
     Function,
     FunctionType,
     GlobalValue,
-    IRBuilder,
     Module,
     Type
 } from "llvm-bindings";
@@ -12,7 +10,9 @@ import { DataType } from "./data_type";
 import LLVMGlobalContext from "./llvm_context";
 
 export default class YttriaRuntime {
-    public static render(module: Module): Function {
+    public static render(
+        module: Module
+    ): Function {
         return Function.Create(
             FunctionType.get(
                 Type.getInt32Ty(LLVMGlobalContext),
@@ -25,7 +25,10 @@ export default class YttriaRuntime {
         );
     }
 
-    public static iabs(module: Module, type: Type): Function {
+    public static iabs(
+        module: Module,
+        type: Type
+    ): Function {
         return Function.Create(
             FunctionType.get(type, [type], false),
             GlobalValue.LinkageTypes.ExternalLinkage,
@@ -34,14 +37,20 @@ export default class YttriaRuntime {
         );
     }
 
-    public static fpabs(module: Module, type: DataType): Function {
+    public static fpabs(
+        module: Module,
+        type: DataType
+    ): Function {
         const llvmType: Type = type.getLLVMType();
 
         return Function.Create(
-            FunctionType.get(llvmType, [llvmType], false),
+            FunctionType.get(
+                llvmType,
+                [llvmType],
+                false
+            ),
             GlobalValue.LinkageTypes.ExternalLinkage,
-            'fabs',
-            module
+            'fabs', module
         );
     }
 }

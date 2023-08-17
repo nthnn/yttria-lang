@@ -6,7 +6,11 @@ class DataType {
     private bit: number;
     private llvmType: Type;
 
-    public constructor(name: string, bit: number, llvmType: Type | undefined) {
+    public constructor(
+        name: string,
+        bit: number,
+        llvmType: Type | undefined
+    ) {
         this.name = name;
         this.bit = bit;
         this.llvmType = llvmType as Type;
@@ -47,7 +51,9 @@ class DataType {
     public static F64: DataType =
         new DataType("f64", 64, Type.getDoubleTy(LLVMGlobalContext));
 
-    public static isOfIntType(type: DataType): boolean {
+    public static isOfIntType(
+        type: DataType
+    ): boolean {
         switch(type) {
             case DataType.I4:
             case DataType.I8:
@@ -60,14 +66,11 @@ class DataType {
         return false;
     }
 
-    public static isOfFloatType(type: DataType): boolean {
-        switch(type) {
-            case DataType.F32:
-            case DataType.F64:
-                return true;
-        }
-
-        return false;
+    public static isOfFloatType(
+        type: DataType
+    ): boolean {
+        return type == DataType.F32 ||
+            type == DataType.F64;
     }
 }
 
@@ -87,22 +90,21 @@ class LLVMDataType {
         [64, [Type.getInt64Ty(LLVMGlobalContext),DataType.I64]],
     ]);
 
-    public static getFloatType(bit: number): Type {
+    public static getFloatType(
+        bit: number
+    ): Type {
         if(LLVMDataType.floatTypeMap.has(bit))
             return LLVMDataType.floatTypeMap.get(bit)![0];
 
         return Type.getFloatTy(LLVMGlobalContext);
     }
 
-    public static getFloatDataType(bit: number): DataType {
-        switch(bit) {
-            case 32:
-                return DataType.F32;
-            case 64:
-                return DataType.F64;
-        }
+    public static getFloatDataType(
+        bit: number
+    ): DataType {
 
-        return DataType.UNKNOWN;
+        return bit == 32 ?
+            DataType.F32 : DataType.F64;
     }
 
     public static getIntType(bit: number): Type {
@@ -126,8 +128,11 @@ class LLVMDataType {
                 return DataType.I64;
         }
 
-        return DataType.UNKNOWN
+        return DataType.UNKNOWN;
     }
 }
 
-export { DataType, LLVMDataType };
+export {
+    DataType,
+    LLVMDataType
+};

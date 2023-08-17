@@ -1,6 +1,9 @@
-import { Token, TokenUtil } from './token';
+import {
+    Token,
+    TokenUtil
+} from './token';
+import { TokenType } from './token_types';
 
-import TokenType from './token_types';
 import TokenizerUtil from './tokenizer_util';
 
 interface TokenizerError {
@@ -27,15 +30,19 @@ class Tokenizer {
         tokens: []
     };
 
-    public constructor(_filename: string, _source: string) {
-        this.filename = _filename;
-        this.source = _source;
+    public constructor(
+        filename: string,
+        source: string
+    ) {
+        this.filename = filename;
+        this.source = source;
 
         console.log(`Initialized tokenizer for ${this.filename}`);
     }
 
     private current(): string {
-        return this.source.charAt(this.pos);
+        return this.source
+            .charAt(this.pos);
     }
 
     private advance(): void {
@@ -43,7 +50,8 @@ class Tokenizer {
     }
 
     private consume(): string {
-        let char: string = this.current();
+        let char: string =
+            this.current();
 
         this.advance();
         this.column++;
@@ -55,7 +63,11 @@ class Tokenizer {
         return this.pos == this.source.length;
     }
 
-    private pushToken(image: string, type: TokenType): void {
+    private pushToken(
+        image: string,
+        type: TokenType
+    ): void {
+
         this.results.tokens.push(
             TokenUtil.newToken(
                 this.filename,
@@ -80,12 +92,15 @@ class Tokenizer {
     private consumeByValidator(
         validator: (_: string)=> boolean,
         validatorName: string,
-        callback: ()=> void): void {
+        callback: ()=> void
+    ): void {
 
         while(!this.isAtEnd())
             if(validator(this.current()))
                 callback();
-            else if(TokenizerUtil.isWhitespace(this.current()))
+            else if(TokenizerUtil.isWhitespace(
+                this.current()
+            ))
                 break;
             else {
                 if(validator == TokenizerUtil.isDigit &&
@@ -160,7 +175,8 @@ class Tokenizer {
     }
 
     private consumeNumber(): void {
-        var image: string = this.consume();
+        var image: string =
+            this.consume();
 
         if(image == '0') {
             if(this.current() == 'b')
@@ -173,7 +189,10 @@ class Tokenizer {
         }
         else image += this.consumeDigit();
 
-        this.pushToken(image, TokenType.TOKEN_DIGIT);
+        this.pushToken(
+            image,
+            TokenType.TOKEN_DIGIT
+        );
     }
 
     private consumeComment(): void {
@@ -183,16 +202,18 @@ class Tokenizer {
     }
 
     private consumeIdentifier(): void {
-        var image: string = this.consume();
+        var image: string =
+            this.consume();
 
         while(!this.isAtEnd() &&
             (TokenizerUtil.isIdentifier(this.current()) ||
              TokenizerUtil.isDigit(this.current())))
             image += this.consume();
 
-        this.pushToken(image, TokenizerUtil.isKeyword(image) ?
-            TokenType.TOKEN_KEYWORD :
-            TokenType.TOKEN_IDENTIFIER
+        this.pushToken(image,
+            TokenizerUtil.isKeyword(image) ?
+                TokenType.TOKEN_KEYWORD :
+                TokenType.TOKEN_IDENTIFIER
         );
     }
 
@@ -209,7 +230,8 @@ class Tokenizer {
                 this.results.errors.push({
                     message: "Unclosed literal encountered.",
                     line: this.line,
-                    column: (this.column - stringContent.length) - 1
+                    column: (this.column -
+                        stringContent.length) - 1
                 });
 
                 this.consume();
@@ -221,7 +243,8 @@ class Tokenizer {
                         this.results.errors.push({
                             message: "Expecting escape character" +
                                 "sequence, encountered EOF.",
-                            column: (this.column - stringContent.length) - 1,
+                            column: (this.column -
+                                stringContent.length) - 1,
                             line: this.line
                         });
                         break;
@@ -238,7 +261,8 @@ class Tokenizer {
                             this.results.errors.push({
                                 message: "Invalid character escape sequence: "
                                     + this.consume(),
-                                column: (this.column - stringContent.length) - 1,
+                                column: (this.column -
+                                    stringContent.length) - 1,
                                 line: this.line
                             });
                             break;
@@ -249,11 +273,9 @@ class Tokenizer {
 
         this.results.tokens.push(
             TokenUtil.newToken(
-                this.filename,
-                stringContent,
+                this.filename, stringContent,
                 (this.column - stringContent.length) - 2,
-                this.line,
-                TokenType.TOKEN_STRING
+                this.line, TokenType.TOKEN_STRING
             )
         );
     }
@@ -267,8 +289,7 @@ class Tokenizer {
 
         this.results.tokens.push(
             TokenUtil.newToken(
-                this.filename,
-                image,
+                this.filename, image,
                 this.column - image.length,
                 this.line,
                 TokenType.TOKEN_OPERATOR
@@ -295,7 +316,8 @@ class Tokenizer {
             else if(TokenizerUtil.isIdentifier(this.current()))
                 this.consumeIdentifier();
             else this.results.errors.push({
-                message: `Unidentified '${this.consume()}' character encountered.`,
+                message: 'Unidentified ' + this.consume() +
+                    ' character encountered.',
                 column: this.column,
                 line: this.line
             });
@@ -305,4 +327,7 @@ class Tokenizer {
     }
 }
 
-export { Tokenizer, TokenizerResult };
+export {
+    Tokenizer,
+    TokenizerResult
+};
