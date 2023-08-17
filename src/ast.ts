@@ -21,8 +21,7 @@ abstract class ASTNode {
 abstract class ExpressionAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
-        module: Module,
-        block: BasicBlock): Constant;
+        module: Module): Constant;
 
     public abstract type(): DataType;
 }
@@ -30,9 +29,7 @@ abstract class ExpressionAST extends ASTNode {
 abstract class StatementAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
-        module: Module,
-        block: BasicBlock
-    ): void;
+        module: Module): void;
 }
 
 export {

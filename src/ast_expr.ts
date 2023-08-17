@@ -16,7 +16,6 @@ import ASTError from "./ast_exception";
 import YttriaUtil from "./util";
 import YttriaRuntime from "./yttria_runtime";
 import LLVMGlobalContext from "./llvm_context";
-import { Context } from "vm";
 
 class ExprASTBool implements ExpressionAST {
     private value: boolean;
@@ -29,8 +28,7 @@ class ExprASTBool implements ExpressionAST {
 
     public visit(
         builder: IRBuilder,
-        module: Module,
-        block: BasicBlock
+        module: Module
     ): Constant {
         return ConstantInt.get(
             Type.getIntNTy(LLVMGlobalContext, 1),
@@ -61,8 +59,7 @@ class ExprASTString implements ExpressionAST {
 
     public visit(
         builder: IRBuilder,
-        module: Module,
-        block: BasicBlock
+        module: Module
     ): Constant {
         return builder.CreateGlobalStringPtr(
             this.value,
@@ -96,8 +93,7 @@ class ExprASTInt implements ExpressionAST {
     
     public visit(
         builder: IRBuilder,
-        module: Module,
-        block: BasicBlock
+        module: Module
     ): Constant {
         return ConstantInt.get(
             LLVMDataType.getIntType(this.bit),
@@ -191,8 +187,7 @@ class ExprASTFloat implements ExpressionAST {
 
     public visit(
         builder: IRBuilder,
-        module: Module,
-        block: BasicBlock
+        module: Module
     ): Constant {
         return ConstantFP.get(
             this.type().getLLVMType(),
@@ -226,9 +221,12 @@ class ExprASTUnary implements ExpressionAST {
         this.expr = expr;
     }
 
-    public visit(builder: IRBuilder, module: Module, block: BasicBlock): Constant {
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): Constant {
         const visited: Constant =
-            this.expr.visit(builder, module, block);
+            this.expr.visit(builder, module);
 
         if(this.operator == '-') {
             if(DataType.isOfFloatType(this.type()))
