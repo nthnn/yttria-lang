@@ -8,7 +8,7 @@ import {
     verifyModule
 } from 'llvm-bindings';
 
-import { TokenUtil } from './token';
+import { Token, TokenUtil } from './token';
 import { Tokenizer, TokenizerResult } from './tokenizer';
 import { ExprASTFloat, ExprASTInt, ExprASTString, ExprASTUnary } from './ast_expr';
 import { hideBin } from 'yargs/helpers';
@@ -17,6 +17,8 @@ import colors from 'colors';
 import LLVMGlobalContext from './llvm_context';
 import YttriaRuntime from './yttria_runtime';
 import yargs from 'yargs';
+import YttriaUtil from './util';
+import { ASTNode, ExpressionAST } from './ast';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
@@ -41,12 +43,17 @@ function tokenizerTest() {
 }
 
 function llvmTest() {
-    const module: Module = new Module('test', LLVMGlobalContext);
+    const nullToken = null as unknown as Token;
+
+    const module: Module = new Module(
+        YttriaUtil.generateRandomHash(),
+        LLVMGlobalContext
+    );
     const builder: IRBuilder = new IRBuilder(LLVMGlobalContext);
 
-    const expr1: ExprASTString = new ExprASTString("Value is '%d'.\n");
-    const expr2: ExprASTInt = new ExprASTInt(-3, 128);
-    const expr3: ExprASTUnary = new ExprASTUnary('+', expr2);
+    const expr1: ExprASTString = new ExprASTString(nullToken, "Value is '%g'.\n");
+    const expr2: ExprASTFloat = new ExprASTFloat(nullToken, 3.14, 32);
+    const expr3: ExprASTUnary = new ExprASTUnary(nullToken, '+', expr2);
 
     const main: BasicBlock = BasicBlock.Create(
         LLVMGlobalContext,
@@ -68,17 +75,14 @@ function llvmTest() {
         YttriaRuntime.render(module),
         [
             expr1.visit(builder, module, main),
-            expr3.visit(builder, module, main)
-        ],
-        'printfCall',
+            expr2.visit(builder, module, main)
+        ]
     );
     builder.CreateRet(ConstantInt.get(builder.getInt32Ty(), 0, true));
 
     const verifyResult = verifyModule(module);
-    if(verifyResult) {
-        console.log('LLVM Verification:\n' + verifyResult);
+    if(verifyResult)
         return;
-    }
 
     console.log('\nModule:\n\n' + module.print());
 }

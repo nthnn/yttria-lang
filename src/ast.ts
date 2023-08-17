@@ -6,9 +6,16 @@ import {
 } from 'llvm-bindings';
 
 import { DataType } from './data_type';
+import { Token } from './token';
+
+interface ASTResolveResults {
+    errors: Map<Token, string>;
+    warnings: Map<Token, string>;
+}
 
 abstract class ASTNode {
-    public abstract resolve(): void;
+    public abstract resolve(results: ASTResolveResults): void;
+    public abstract marker(): Token;
 }
 
 abstract class ExpressionAST extends ASTNode {
@@ -30,6 +37,7 @@ abstract class StatementAST extends ASTNode {
 
 export {
     ASTNode,
+    ASTResolveResults,
     ExpressionAST,
     StatementAST
 };
