@@ -1,2 +1,3 @@
 - Binary AST operations for +, -, /, *, ^, %, &, and |.
 - Equality AST operations for ==, !=, <, >, <=, and >=.
+- Function, return, and variable declaraction AST.
