@@ -1,7 +1,11 @@
 - Logical operator && and ||
-- Statement AST for block, if, else, coroute, defer.
-- Statement AST for while, and do.
-- Statement AST for break and continue.
+- Statement AST for:
+  - return.
+  - if-else.
+  - coroute and defer.
+  - while and do.
+  - break and continue.
+- Binary AST operations for << and >>.
 - Binary AST operations for +, -, /, *, ^, and %.
 - Equality AST operations for <, >, <=, and >=.
 - Function, return, and variable declaraction AST.
