@@ -30,6 +30,8 @@ class DataType {
 
     public static UNKNOWN: DataType =
         new DataType("unknown", 0, undefined);
+    public static VOID: DataType =
+        new DataType("void", 0, Type.getVoidTy(LLVMGlobalContext));
     public static STRING: DataType =
         new DataType("string", 0, undefined);
     public static BOOL: DataType =

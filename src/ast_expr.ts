@@ -46,7 +46,8 @@ class ExprASTBool implements ExpressionAST {
     }
 
     public resolve(
-        results: ASTResolveResults
+        results: ASTResolveResults,
+        returnType: DataType
     ): void { }
 
     public marker(): Token {
@@ -83,7 +84,8 @@ class ExprASTString implements ExpressionAST {
     }
 
     public resolve(
-        results: ASTResolveResults
+        results: ASTResolveResults,
+        returnType: DataType
     ): void { }
 
     public marker(): Token {
@@ -143,7 +145,10 @@ class ExprASTInt implements ExpressionAST {
             );
     }
 
-    public resolve(results: ASTResolveResults): void {
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
         switch(this.bit) {
             case 4:
                 this.minMaxFlow(
@@ -223,7 +228,10 @@ class ExprASTFloat implements ExpressionAST {
         return LLVMDataType.getFloatDataType(this.bit);
     }
 
-    public resolve(): void { }
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void { }
 
     public marker(): Token {
         return this.mark;
@@ -295,7 +303,10 @@ class ExprASTUnary implements ExpressionAST {
         return this.expr.type();
     }
 
-    public resolve(results: ASTResolveResults): void {
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
         const dataType: DataType = this.expr.type();
         const mrk: Token = this.marker();
 
@@ -416,7 +427,10 @@ class ExprASTEquality implements ExpressionAST {
         return DataType.BOOL;
     }
 
-    public resolve(results: ASTResolveResults): void {
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
         const leftType: DataType =
             this.left.type();
         const rightType: DataType =
@@ -467,8 +481,8 @@ class ExprASTEquality implements ExpressionAST {
                 ' is not allowed.'
             );
 
-        this.left.resolve(results);
-        this.right.resolve(results);
+        this.left.resolve(results, returnType);
+        this.right.resolve(results, returnType);
     }
 
     public marker(): Token {
@@ -556,7 +570,8 @@ class ExprASTAndOr implements ExpressionAST {
     }
 
     public resolve(
-        results: ASTResolveResults
+        results: ASTResolveResults,
+        returnType: DataType
     ): void {
         const leftType: DataType =
             this.left.type();
@@ -600,9 +615,8 @@ class ExprASTAndOr implements ExpressionAST {
                 );
         }
 
-
-        this.left.resolve(results);
-        this.right.resolve(results);
+        this.left.resolve(results, returnType);
+        this.right.resolve(results, returnType);
     }
 
     public marker(): Token {

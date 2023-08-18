@@ -1,6 +1,7 @@
 import {
     IRBuilder,
     Module,
+    Type,
     verifyModule
 } from 'llvm-bindings';
 
@@ -17,11 +18,8 @@ import {
 import {
     ExprASTAndOr,
     ExprASTBool,
-    ExprASTEquality,
     ExprASTFloat,
-    ExprASTInt,
-    ExprASTString,
-    ExprASTUnary
+    ExprASTInt
 } from './ast_expr';
 
 import {
@@ -35,6 +33,8 @@ import colors from 'colors';
 import LLVMGlobalContext from './llvm_context';
 import yargs from 'yargs';
 import YttriaUtil from './util';
+import { File } from 'buffer';
+import { DataType } from './data_type';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
@@ -42,6 +42,7 @@ function tokenizerTest() {
         '#hello\nsub main\n0b0101011 0xcafebabe hh 3.14 "Hello\\tworld!" +++ <<< >>>'
     );
     var tokenizerResult: TokenizerResult = tokenizer.scan();
+    const outType: Type = Type.getVoidTy(LLVMGlobalContext)
 
     if(tokenizerResult.tokens.length != 0) {
         console.log('Tokens:');
@@ -68,9 +69,14 @@ function llvmTest() {
 
     const expr1: ExprASTInt = new ExprASTInt(nullToken, BigInt('101'), 32);
     const expr2: ExprASTInt = new ExprASTInt(nullToken, BigInt('99'), 32);
+
     const cmp: ExprASTAndOr = new ExprASTAndOr(nullToken, '&', expr1, expr2);
     const body: StmtASTRender = new StmtASTRender(nullToken, cmp);
-    const main: StmtASTMain = new StmtASTMain(nullToken, body);
+
+    const main: StmtASTMain = new StmtASTMain(
+        nullToken,
+        body
+    );
 
     const builder: IRBuilder = new IRBuilder(LLVMGlobalContext);
     main.visit(builder, module);

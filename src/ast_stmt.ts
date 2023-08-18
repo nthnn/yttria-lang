@@ -7,7 +7,7 @@ import {
     FunctionType,
     ConstantInt,
     Value,
-    ReturnInst
+    Type
 } from "llvm-bindings";
 
 import {
@@ -64,8 +64,14 @@ class StmtASTMain implements StatementAST {
     }
 
     public resolve(
-        results: ASTResolveResults
-    ): void { }
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
+        this.body.resolve(
+            results,
+            returnType.getLLVMType() as unknown as DataType
+        );
+    }
 
     public marker(): Token {
         return this.mark;
@@ -115,8 +121,14 @@ class StmtASTRender implements StatementAST {
         );
     }
 
-    public resolve(results: ASTResolveResults): void {
-        this.expr.resolve(results);
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
+        this.expr.resolve(
+            results,
+            returnType
+        );
     }
 
     public marker(): Token {
@@ -154,10 +166,25 @@ class StmtASTReturn implements StatementAST {
     }
 
     public resolve(
-        results: ASTResolveResults
+        results: ASTResolveResults,
+        returnType: DataType
     ): void {
-        if(this.hasValue)
-            this.value?.resolve(results);
+        if(this.hasValue) {
+            const valueType: DataType =
+                this.value?.type() as DataType;
+
+            if(valueType != returnType)
+                results.errors.set(
+                    this.mark,
+                    'Invalid return type ' +
+                    valueType.toString() + ' for type ' +
+                    returnType.toString() + '.');
+
+            this.value?.resolve(
+                results,
+                returnType
+            );
+        }
     }
 
     public marker(): Token {
