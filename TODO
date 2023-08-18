@@ -1,9 +1,8 @@
 - Statement AST for:
-  - return.
-  - if-else.
-  - coroute and defer.
-  - while and do.
-  - break and continue.
+  - if-else
+  - coroute and defer
+  - while and do
+  - break and continue
 - Binary AST operations for << and >>.
 - Binary AST operations for +, -, /, *, ^, and %.
 - Equality AST operations for <, >, <=, and >=.
