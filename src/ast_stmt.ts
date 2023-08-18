@@ -5,7 +5,9 @@ import {
     BasicBlock,
     Constant,
     FunctionType,
-    ConstantInt
+    ConstantInt,
+    Value,
+    ReturnInst
 } from "llvm-bindings";
 
 import {
@@ -115,6 +117,47 @@ class StmtASTRender implements StatementAST {
 
     public resolve(results: ASTResolveResults): void {
         this.expr.resolve(results);
+    }
+
+    public marker(): Token {
+        return this.mark;
+    }
+}
+
+class StmtASTReturn implements StatementAST {
+    private mark: Token;
+    private hasValue: boolean;
+    private value?: ExpressionAST;
+
+    public constructor(
+        mark: Token,
+        hasValue: boolean,
+        value?: ExpressionAST
+    ) {
+        this.mark = mark;
+        this.hasValue = hasValue;
+        this.value = value;
+    }
+
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): void {
+        if(this.hasValue)
+            builder.CreateRet(
+                this.value?.visit(
+                    builder,
+                    module
+                ) as Value
+            );
+        else builder.CreateRetVoid();
+    }
+
+    public resolve(
+        results: ASTResolveResults
+    ): void {
+        if(this.hasValue)
+            this.value?.resolve(results);
     }
 
     public marker(): Token {
