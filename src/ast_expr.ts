@@ -476,7 +476,7 @@ class ExprASTEquality implements ExpressionAST {
     }
 }
 
-class ExprASTBinary implements ExpressionAST {
+class ExprASTAndOr implements ExpressionAST {
     private mark: Token;
     private operator: string;
     private left: ExpressionAST;
@@ -517,6 +517,11 @@ class ExprASTBinary implements ExpressionAST {
                 outType,
                 true
             ) as Constant;
+        else if(this.operator == '||')
+            return builder.CreateOr(
+                leftExpr,
+                rightExpr
+            ) as Constant;
         else if(this.operator == '&')
             return builder.CreateIntCast(
                 builder.CreateAnd(
@@ -525,6 +530,11 @@ class ExprASTBinary implements ExpressionAST {
                 ),
                 outType,
                 true
+            ) as Constant;
+        else if(this.operator == '&&')
+            return builder.CreateAnd(
+                leftExpr,
+                rightExpr
             ) as Constant;
 
         throw new ASTError('Invalid binary operator.');
@@ -602,7 +612,7 @@ class ExprASTBinary implements ExpressionAST {
 
 export {
     ExprASTBool,
-    ExprASTBinary,
+    ExprASTAndOr,
     ExprASTEquality,
     ExprASTString,
     ExprASTInt,
