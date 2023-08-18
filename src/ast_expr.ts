@@ -531,28 +531,64 @@ class ExprASTBinary implements ExpressionAST {
     }
 
     public type(): DataType {
-        return DataType.greaterIntegerType(
-            this. left.type(),
-            this.right.type()
-        );
+        if(this.operator == '|' ||
+            this.operator == '&')
+            return DataType.greaterIntegerType(
+                this. left.type(),
+                this.right.type()
+            );
+        else if(this.operator == '||' ||
+            this.operator == '&&')
+            return DataType.BOOL;
+
+        throw new ASTError('Invalid operator for' +
+            ' binary/logical expression');
     }
 
     public resolve(
         results: ASTResolveResults
     ): void {
-        if(!DataType.isOfIntType(this.left.type()))
-            results.errors.set(
-                this.left.marker(),
-                'Left-hand of binary operation' +
-                ' is not of integer type.'
-            );
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+        const leftMarker: Token =
+            this.left.marker();
+        const rightMarker: Token =
+            this.right.marker();
 
-        if(!DataType.isOfIntType(this.right.type()))
-            results.errors.set(
-                this.right.marker(),
-                'Right-hand of binary operation' +
-                ' is not of integer type.'
-            );
+        if(this.operator == '|' ||
+            this.operator == '&') {
+            if(!DataType.isOfIntType(leftType))
+                results.errors.set(
+                    leftMarker,
+                    'Left-hand of binary operation' +
+                    ' is not of integer type.'
+                );
+
+            if(!DataType.isOfIntType(rightType))
+                results.errors.set(
+                    rightMarker,
+                    'Right-hand of binary operation' +
+                    ' is not of integer type.'
+                );
+        }
+        else if(this.operator == '&&' ||
+            this.operator == '||') {
+            if(leftType != DataType.BOOL)
+                results.errors.set(
+                    leftMarker,
+                    'Left-hand expression' +
+                    ' is not of bool type.'
+                );
+
+            if(rightType != DataType.BOOL)
+                results.errors.set(
+                    rightMarker,
+                    'Right-hand expression' +
+                    ' is not of bool type.'
+                );
+        }
 
 
         this.left.resolve(results);
