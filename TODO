@@ -1,4 +1,3 @@
-- Logical operator && and ||
 - Statement AST for:
   - return.
   - if-else.
