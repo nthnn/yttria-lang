@@ -476,8 +476,97 @@ class ExprASTEquality implements ExpressionAST {
     }
 }
 
+class ExprASTBinary implements ExpressionAST {
+    private mark: Token;
+    private operator: string;
+    private left: ExpressionAST;
+    private right: ExpressionAST;
+
+    public constructor(
+        mark: Token,
+        operator: string,
+        left: ExpressionAST,
+        right: ExpressionAST
+    ) {
+        this.mark = mark;
+        this.operator = operator;
+        this.left = left;
+        this.right = right;
+    }
+
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): Constant {
+        const leftExpr: Constant =
+            this.left.visit(builder, module);
+        const rightExpr: Constant =
+            this.right.visit(builder, module);
+        const outType: Type =
+            DataType.greaterIntegerType(
+                this.left.type(),
+                this.right.type()
+            ).getLLVMType();
+
+        if(this.operator == '|')
+            return builder.CreateIntCast(
+                builder.CreateOr(
+                    leftExpr,
+                    rightExpr
+                ),
+                outType,
+                true
+            ) as Constant;
+        else if(this.operator == '&')
+            return builder.CreateIntCast(
+                builder.CreateAnd(
+                    leftExpr,
+                    rightExpr
+                ),
+                outType,
+                true
+            ) as Constant;
+
+        throw new ASTError('Invalid binary operator.');
+    }
+
+    public type(): DataType {
+        return DataType.greaterIntegerType(
+            this. left.type(),
+            this.right.type()
+        );
+    }
+
+    public resolve(
+        results: ASTResolveResults
+    ): void {
+        if(!DataType.isOfIntType(this.left.type()))
+            results.errors.set(
+                this.left.marker(),
+                'Left-hand of binary operation' +
+                ' is not of integer type.'
+            );
+
+        if(!DataType.isOfIntType(this.right.type()))
+            results.errors.set(
+                this.right.marker(),
+                'Right-hand of binary operation' +
+                ' is not of integer type.'
+            );
+
+
+        this.left.resolve(results);
+        this.right.resolve(results);
+    }
+
+    public marker(): Token {
+        return this.mark;
+    }
+}
+
 export {
     ExprASTBool,
+    ExprASTBinary,
     ExprASTEquality,
     ExprASTString,
     ExprASTInt,

@@ -15,6 +15,7 @@ import {
 } from './tokenizer';
 
 import {
+    ExprASTBinary,
     ExprASTBool,
     ExprASTEquality,
     ExprASTFloat,
@@ -65,9 +66,9 @@ function llvmTest() {
         LLVMGlobalContext
     );
 
-    const expr1: ExprASTString = new ExprASTString(nullToken, 'hi');
-    const expr2: ExprASTString = new ExprASTString(nullToken, 'hi');
-    const cmp: ExprASTEquality = new ExprASTEquality(nullToken, '==', expr1, expr2);
+    const expr1: ExprASTInt = new ExprASTInt(nullToken, BigInt('101'), 32);
+    const expr2: ExprASTInt = new ExprASTInt(nullToken, BigInt('99'), 32);
+    const cmp: ExprASTBinary = new ExprASTBinary(nullToken, '&', expr1, expr2);
     const body: StmtASTRender = new StmtASTRender(nullToken, cmp);
     const main: StmtASTMain = new StmtASTMain(nullToken, body);
 

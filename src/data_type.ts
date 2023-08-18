@@ -51,6 +51,29 @@ class DataType {
     public static F64: DataType =
         new DataType("f64", 64, Type.getDoubleTy(LLVMGlobalContext));
 
+    public static greaterIntegerType(
+        a: DataType,
+        b: DataType
+    ): DataType {
+        if(a == b)
+            return a;
+    
+        switch(a) {
+            case DataType.I4:
+                return b;
+            case DataType.I8:
+                return (b == DataType.I4) ?
+                    a : b;
+            case DataType.I16:
+                return (b == DataType.I64) ?
+                    b : a;
+            case DataType.I64:
+                return a;
+        }
+    
+        return b;
+    }
+
     public static isOfIntType(
         type: DataType
     ): boolean {
