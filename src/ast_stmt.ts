@@ -317,10 +317,42 @@ class StmtASTBlock implements StatementAST {
     }
 }
 
+class StmtASTUnsafe implements StatementAST {
+    private mark: Token;
+    private body: StatementAST;
+
+    public constructor(
+        mark: Token,
+        body: StatementAST
+    ) {
+        this.mark = mark;
+        this.body = body;
+    }
+
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): void {
+        this.body.visit(builder, module);
+    }
+
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
+        this.body.resolve(results, returnType);
+    }
+
+    public marker(): Token {
+        return this.mark;
+    }
+}
+
 export {
     StmtASTMain,
     StmtASTRender,
     StmtASTDefer,
     StmtASTReturn,
-    StmtASTBlock
+    StmtASTBlock,
+    StmtASTUnsafe
 };
