@@ -6,8 +6,7 @@ import {
     Constant,
     FunctionType,
     ConstantInt,
-    Value,
-    Type
+    Value
 } from "llvm-bindings";
 
 import {
@@ -192,7 +191,136 @@ class StmtASTReturn implements StatementAST {
     }
 }
 
+class StmtASTDefer implements StatementAST {
+    private mark: Token;
+    private stmt: StatementAST;
+
+    public constructor(
+        mark: Token,
+        stmt: StatementAST
+    ) {
+        this.mark = mark;
+        this.stmt = stmt;
+    }
+
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): void {
+        this.stmt.visit(builder, module);
+    }
+
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
+        if(this.stmt instanceof StmtASTReturn)
+            results.warnings.set(
+                this.mark,
+                'Defer with return' +
+                ' as inner statement'
+            );
+        else if(this.stmt instanceof StmtASTDefer)
+            results.warnings.set(
+                this.mark,
+                'Defer inside a defer statement' +
+                ' would not take any effect.'
+            );
+
+        this.stmt.resolve(results, returnType);
+    }
+
+    public marker(): Token {
+        return this.mark;
+    }
+}
+
+class StmtASTBlock implements StatementAST {
+    private mark: Token;
+    private body: Array<StmtASTBlock>;
+
+    public constructor(
+        mark: Token,
+        body: Array<StmtASTBlock>
+    ) {
+        this.mark = mark;
+        this.body = body;
+    }
+
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): void {
+        const deferrals: Array<StatementAST> = [];
+
+        this.body.forEach((stmt: StatementAST)=> {
+            if(!(stmt instanceof StmtASTDefer))
+                stmt.visit(builder, module);
+            else deferrals.push(stmt);
+        });
+
+        deferrals.reverse();
+        deferrals.forEach((stmt: StatementAST)=> {
+            stmt.visit(builder, module);
+        });
+    }
+
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType
+    ): void {
+        const deferrals: Array<StatementAST> = [];
+        let isPrevReturn: boolean = false;
+        let prevReturnMark: Token;
+
+        this.body.forEach((stmt: StatementAST)=> {
+            if(!(stmt instanceof StmtASTDefer)) {
+                stmt.resolve(results, returnType);
+
+                if(isPrevReturn) {
+                    results.errors.set(
+                        prevReturnMark as unknown as Token,
+                        'Unreachable code.'
+                    );
+
+                    isPrevReturn = false;
+                }
+                if(stmt instanceof StmtASTReturn) {
+                    isPrevReturn = true;
+                    prevReturnMark = stmt.marker();
+                }
+            }
+            else deferrals.push(stmt);
+        });
+
+        deferrals.reverse();
+        deferrals.forEach((stmt: StatementAST)=> {
+            if(isPrevReturn) {
+                results.errors.set(
+                    prevReturnMark as unknown as Token,
+                    'Unreachable code.'
+                );
+
+                isPrevReturn = false;
+            }
+            if(stmt instanceof StmtASTReturn) {
+                isPrevReturn = true;
+                prevReturnMark = stmt.marker();
+            }
+
+            stmt.resolve(results, returnType);
+        });
+    }
+
+    public marker(): Token {
+        return this.mark;
+    }
+}
+
 export {
     StmtASTMain,
-    StmtASTRender
+    StmtASTRender,
+    StmtASTDefer,
+    StmtASTReturn,
+    StmtASTBlock
 };

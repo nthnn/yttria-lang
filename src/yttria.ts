@@ -19,7 +19,8 @@ import {
     ExprASTAndOr,
     ExprASTBool,
     ExprASTFloat,
-    ExprASTInt
+    ExprASTInt,
+    ExprASTString
 } from './ast_expr';
 
 import {
@@ -33,8 +34,6 @@ import colors from 'colors';
 import LLVMGlobalContext from './llvm_context';
 import yargs from 'yargs';
 import YttriaUtil from './util';
-import { File } from 'buffer';
-import { DataType } from './data_type';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
@@ -71,7 +70,7 @@ function llvmTest() {
     const expr2: ExprASTInt = new ExprASTInt(nullToken, BigInt('99'), 32);
 
     const cmp: ExprASTAndOr = new ExprASTAndOr(nullToken, '&', expr1, expr2);
-    const body: StmtASTRender = new StmtASTRender(nullToken, cmp);
+    const body: StmtASTRender = new StmtASTRender(nullToken, new ExprASTString(nullToken, "Hello, from Yttria!"));
 
     const main: StmtASTMain = new StmtASTMain(
         nullToken,
