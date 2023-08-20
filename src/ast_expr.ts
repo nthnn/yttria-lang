@@ -1,5 +1,4 @@
 import {
-    Constant,
     ConstantFP,
     ConstantInt,
     IRBuilder,
@@ -32,7 +31,7 @@ class ExprASTBool implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
+    ): Value {
 
         return ConstantInt.get(
             Type.getIntNTy(LLVMGlobalContext, 1),
@@ -71,7 +70,7 @@ class ExprASTString implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
+    ): Value {
 
         return builder.CreateGlobalStringPtr(
             this.value,
@@ -113,7 +112,7 @@ class ExprASTInt implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
+    ): Value {
 
         return ConstantInt.get(
             LLVMDataType.getIntType(this.bit),
@@ -222,7 +221,7 @@ class ExprASTFloat implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
+    ): Value {
 
         return ConstantFP.get(
             this.type().getLLVMType(),
@@ -263,9 +262,9 @@ class ExprASTUnary implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
+    ): Value {
 
-        const visited: Constant =
+        const visited: Value =
             this.expr.visit(builder, module);
 
         if(this.operator == '-') {
@@ -273,20 +272,20 @@ class ExprASTUnary implements ExpressionAST {
                 return builder.CreateFNeg(
                     visited,
                     YttriaUtil.generateRandomHash()
-                ) as Constant;
+                );
             else if(this.type() == DataType.BOOL)
                 return builder.CreateIntCast(
                     builder.CreateNeg(
                         visited,
                         YttriaUtil.generateRandomHash()
-                    ) as Constant,
+                    ),
                     Type.getIntNTy(LLVMGlobalContext, 4),
                     true
-                ) as Constant;
+                );
             else return builder.CreateNeg(
                 visited,
                 YttriaUtil.generateRandomHash()
-            ) as Constant;
+            );
         }
         else if(this.operator == '+') {
             const type: DataType = this.type();
@@ -296,27 +295,30 @@ class ExprASTUnary implements ExpressionAST {
                     YttriaRuntime.iabs(module, type.getLLVMType()),
                     [visited],
                     YttriaUtil.generateRandomHash()
-                ) as unknown as Constant;
+                );
             else if(DataType.isOfFloatType(type))
                 return builder.CreateCall(
                     YttriaRuntime.fpabs(module, type),
                     [visited],
                     YttriaUtil.generateRandomHash()
-                ) as unknown as Constant;
+                );
             else if(type == DataType.BOOL)
                 return builder.CreateCall(
-                    YttriaRuntime.iabs(module, type.getLLVMType()),
+                    YttriaRuntime.iabs(
+                        module,
+                        type.getLLVMType()
+                    ),
                     [visited],
                     YttriaUtil.generateRandomHash()
-                ) as unknown as Constant;
+                );
         }
         else if(this.operator == '~')
             return builder.CreateNot(
                 visited,
                 YttriaUtil.generateRandomHash()
-            ) as Constant;
+            );
         else if(this.operator == '!')
-            return builder.CreateNot(visited) as Constant;
+            return builder.CreateNot(visited);
 
         throw new ASTError('Invalid operator for unary AST.');
     }
@@ -384,7 +386,7 @@ class ExprASTEquality implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
+    ): Value {
         type ASTEqInstruction = (
             lhs: Value,
             rhs: Value,
@@ -404,9 +406,9 @@ class ExprASTEquality implements ExpressionAST {
         const rightType: DataType =
             this.right.type();
 
-        const leftExpr: Constant =
+        const leftExpr: Value =
             this.left.visit(builder, module);
-        let rightExpr: Constant =
+        let rightExpr: Value =
             this.right.visit(builder, module);
 
         if(DataType.isOfFloatType(leftType) &&
@@ -423,7 +425,7 @@ class ExprASTEquality implements ExpressionAST {
                 rightExpr,
                 leftType.getLLVMType(),
                 true
-            ) as Constant;
+            );
         }
         else if(DataType.isOfIntType(leftType) &&
             DataType.isOfFloatType(rightType)) {
@@ -432,7 +434,7 @@ class ExprASTEquality implements ExpressionAST {
             rightExpr = builder.CreateFPCast(
                 rightExpr,
                 rightType.getLLVMType()
-            ) as Constant;
+            );
         }
         else if((leftType == DataType.BOOL &&
             rightType == DataType.BOOL) &&
@@ -443,7 +445,7 @@ class ExprASTEquality implements ExpressionAST {
         return funcBuilder[funcAddr](
             leftExpr,
             rightExpr
-        ) as Constant;
+        );
     }
 
     public type(): DataType {
@@ -536,10 +538,10 @@ class ExprASTAndOr implements ExpressionAST {
     public visit(
         builder: IRBuilder,
         module: Module
-    ): Constant {
-        const leftExpr: Constant =
+    ): Value {
+        const leftExpr: Value =
             this.left.visit(builder, module);
-        const rightExpr: Constant =
+        const rightExpr: Value =
             this.right.visit(builder, module);
         const outType: Type =
             DataType.greaterIntegerType(
@@ -555,12 +557,12 @@ class ExprASTAndOr implements ExpressionAST {
                 ),
                 outType,
                 true
-            ) as Constant;
+            );
         else if(this.operator == '||')
             return builder.CreateOr(
                 leftExpr,
                 rightExpr
-            ) as Constant;
+            );
         else if(this.operator == '&')
             return builder.CreateIntCast(
                 builder.CreateAnd(
@@ -569,12 +571,12 @@ class ExprASTAndOr implements ExpressionAST {
                 ),
                 outType,
                 true
-            ) as Constant;
+            );
         else if(this.operator == '&&')
             return builder.CreateAnd(
                 leftExpr,
                 rightExpr
-            ) as Constant;
+            );
 
         throw new ASTError('Invalid binary operator.');
     }

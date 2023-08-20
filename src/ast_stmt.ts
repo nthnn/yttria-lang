@@ -3,7 +3,6 @@ import {
     Function,
     Module,
     BasicBlock,
-    Constant,
     FunctionType,
     ConstantInt,
     Value
@@ -21,7 +20,6 @@ import { ExprASTString } from "./ast_expr";
 
 import LLVMGlobalContext from "./llvm_context";
 import YttriaRuntime from "./yttria_runtime";
-import { boolean } from "yargs";
 
 class StmtASTMain implements StatementAST {
     private mark: Token;
@@ -97,7 +95,7 @@ class StmtASTRender implements StatementAST {
         module: Module
     ): void {
         let formatter: string = "";
-        let formatted: Constant = this.expr.visit(builder, module);
+        let formatted: Value = this.expr.visit(builder, module);
 
         const dataType: DataType = this.expr.type();
 

@@ -1,7 +1,8 @@
 import {
     Constant,
     IRBuilder,
-    Module
+    Module,
+    Value
 } from 'llvm-bindings';
 
 import { DataType } from './data_type';
@@ -26,7 +27,7 @@ abstract class ExpressionAST extends ASTNode {
     public abstract visit(
         builder: IRBuilder,
         module: Module
-    ): Constant;
+    ): Value;
 
     public abstract type(): DataType;
 }
