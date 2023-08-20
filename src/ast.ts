@@ -15,7 +15,8 @@ interface ASTResolveResults {
 abstract class ASTNode {
     public abstract resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void;
 
     public abstract marker(): Token;

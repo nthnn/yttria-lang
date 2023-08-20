@@ -21,6 +21,7 @@ import { ExprASTString } from "./ast_expr";
 
 import LLVMGlobalContext from "./llvm_context";
 import YttriaRuntime from "./yttria_runtime";
+import { boolean } from "yargs";
 
 class StmtASTMain implements StatementAST {
     private mark: Token;
@@ -64,11 +65,13 @@ class StmtASTMain implements StatementAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
         this.body.resolve(
             results,
-            returnType.getLLVMType() as unknown as DataType
+            returnType.getLLVMType() as unknown as DataType,
+            unsafe
         );
     }
 
@@ -122,11 +125,13 @@ class StmtASTRender implements StatementAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
         this.expr.resolve(
             results,
-            returnType
+            returnType,
+            unsafe
         );
     }
 
@@ -166,9 +171,17 @@ class StmtASTReturn implements StatementAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
-        if(this.hasValue) {
+        if(returnType != DataType.VOID &&
+                !this.hasValue)
+            results.errors.set(
+                this.mark,
+                'Invalid no return value. ' +
+                'Must return ' + returnType.toString()
+            );
+        else if(this.hasValue) {
             const valueType: DataType =
                 this.value?.type() as DataType;
 
@@ -181,7 +194,8 @@ class StmtASTReturn implements StatementAST {
 
             this.value?.resolve(
                 results,
-                returnType
+                returnType,
+                unsafe
             );
         }
     }
@@ -212,22 +226,27 @@ class StmtASTDefer implements StatementAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
-        if(this.stmt instanceof StmtASTReturn)
+        if(this.stmt instanceof StmtASTReturn &&
+            !unsafe)
+
             results.warnings.set(
                 this.mark,
                 'Defer with return' +
                 ' as inner statement'
             );
-        else if(this.stmt instanceof StmtASTDefer)
+        else if(this.stmt instanceof StmtASTDefer &&
+            !unsafe)
+
             results.warnings.set(
                 this.mark,
                 'Defer inside a defer statement' +
                 ' would not take any effect.'
             );
 
-        this.stmt.resolve(results, returnType);
+        this.stmt.resolve(results, returnType, unsafe);
     }
 
     public marker(): Token {
@@ -267,7 +286,8 @@ class StmtASTBlock implements StatementAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
         const deferrals: Array<StatementAST> = [];
         let isPrevReturn: boolean = false;
@@ -275,7 +295,10 @@ class StmtASTBlock implements StatementAST {
 
         this.body.forEach((stmt: StatementAST)=> {
             if(!(stmt instanceof StmtASTDefer)) {
-                stmt.resolve(results, returnType);
+                stmt.resolve(
+                    results,
+                    returnType,
+                    unsafe);
 
                 if(isPrevReturn) {
                     results.errors.set(
@@ -308,7 +331,11 @@ class StmtASTBlock implements StatementAST {
                 prevReturnMark = stmt.marker();
             }
 
-            stmt.resolve(results, returnType);
+            stmt.resolve(
+                results,
+                returnType,
+                unsafe
+            );
         });
     }
 
@@ -338,9 +365,20 @@ class StmtASTUnsafe implements StatementAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
-        this.body.resolve(results, returnType);
+        if(unsafe)
+            results.warnings.set(
+                this.mark,
+                'Already inside an unsafe block.'
+            );
+
+        this.body.resolve(
+            results,
+            returnType,
+            true
+        );
     }
 
     public marker(): Token {

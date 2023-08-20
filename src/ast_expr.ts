@@ -47,7 +47,8 @@ class ExprASTBool implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void { }
 
     public marker(): Token {
@@ -85,7 +86,8 @@ class ExprASTString implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void { }
 
     public marker(): Token {
@@ -147,8 +149,12 @@ class ExprASTInt implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
+        if(unsafe)
+            return;
+
         switch(this.bit) {
             case 4:
                 this.minMaxFlow(
@@ -230,7 +236,8 @@ class ExprASTFloat implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void { }
 
     public marker(): Token {
@@ -267,6 +274,15 @@ class ExprASTUnary implements ExpressionAST {
                     visited,
                     YttriaUtil.generateRandomHash()
                 ) as Constant;
+            else if(this.type() == DataType.BOOL)
+                return builder.CreateIntCast(
+                    builder.CreateNeg(
+                        visited,
+                        YttriaUtil.generateRandomHash()
+                    ) as Constant,
+                    Type.getIntNTy(LLVMGlobalContext, 4),
+                    true
+                ) as Constant;
             else return builder.CreateNeg(
                 visited,
                 YttriaUtil.generateRandomHash()
@@ -284,6 +300,12 @@ class ExprASTUnary implements ExpressionAST {
             else if(DataType.isOfFloatType(type))
                 return builder.CreateCall(
                     YttriaRuntime.fpabs(module, type),
+                    [visited],
+                    YttriaUtil.generateRandomHash()
+                ) as unknown as Constant;
+            else if(type == DataType.BOOL)
+                return builder.CreateCall(
+                    YttriaRuntime.iabs(module, type.getLLVMType()),
                     [visited],
                     YttriaUtil.generateRandomHash()
                 ) as unknown as Constant;
@@ -305,7 +327,8 @@ class ExprASTUnary implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
         const dataType: DataType = this.expr.type();
         const mrk: Token = this.marker();
@@ -327,7 +350,7 @@ class ExprASTUnary implements ExpressionAST {
                 ' cannot be used on non-number expressions.'
             )
         else if(this.operator == '!' &&
-            dataType != DataType.BOOL)
+            dataType != DataType.BOOL && !unsafe)
             results.errors.set(
                 mrk,
                 'Unary ! operator can be only used ' +
@@ -429,7 +452,8 @@ class ExprASTEquality implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
         const leftType: DataType =
             this.left.type();
@@ -459,7 +483,7 @@ class ExprASTEquality implements ExpressionAST {
                 ' to ' + rightType.toString() + '.'
             );
         else if(DataType.isOfIntType(leftType) &&
-            DataType.isOfIntType(rightType))
+            !DataType.isOfIntType(rightType))
             results.errors.set(
                 this.mark,
                 'Type ' + leftType.toString() +
@@ -474,15 +498,16 @@ class ExprASTEquality implements ExpressionAST {
                 ' is not allowed.'
             );
         else if(leftType == DataType.BOOL &&
-            rightType != DataType.BOOL)
+            (rightType != DataType.BOOL ||
+                (DataType.isOfIntType(rightType) && unsafe)))
             results.errors.set(
                 this.mark,
                 'Comparing bool to ' + rightType.toString() +
                 ' is not allowed.'
             );
 
-        this.left.resolve(results, returnType);
-        this.right.resolve(results, returnType);
+        this.left.resolve(results, returnType, unsafe);
+        this.right.resolve(results, returnType, unsafe);
     }
 
     public marker(): Token {
@@ -571,7 +596,8 @@ class ExprASTAndOr implements ExpressionAST {
 
     public resolve(
         results: ASTResolveResults,
-        returnType: DataType
+        returnType: DataType,
+        unsafe: boolean
     ): void {
         const leftType: DataType =
             this.left.type();
@@ -600,23 +626,37 @@ class ExprASTAndOr implements ExpressionAST {
         }
         else if(this.operator == '&&' ||
             this.operator == '||') {
+            if(unsafe &&
+                (DataType.isOfIntType(leftType) &&
+                    !DataType.isOfIntType(rightType))) {
+
+                results.errors.set(
+                    this.mark,
+                    'Type of ' + leftType.toString +
+                    ' cannot be used with \'' + this.operator +
+                    '\' operator to type of ' +
+                    rightType.toString()
+                );
+                return;
+            }
+
             if(leftType != DataType.BOOL)
                 results.errors.set(
                     leftMarker,
                     'Left-hand expression' +
                     ' is not of bool type.'
                 );
-
             if(rightType != DataType.BOOL)
                 results.errors.set(
                     rightMarker,
                     'Right-hand expression' +
                     ' is not of bool type.'
                 );
+
         }
 
-        this.left.resolve(results, returnType);
-        this.right.resolve(results, returnType);
+        this.left.resolve(results, returnType, unsafe);
+        this.right.resolve(results, returnType, unsafe);
     }
 
     public marker(): Token {
