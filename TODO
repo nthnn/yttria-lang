@@ -1,6 +1,7 @@
 - Statement AST for:
   - if-else
-  - coroute and defer
+  - coroute, wait, lock, and sync
+  - unsafe
   - while and do
   - break and continue
 - Binary AST operations for << and >>.
