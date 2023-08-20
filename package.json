@@ -2,7 +2,6 @@
   "name": "yttria",
   "version": "1.0.0",
   "description": "Yttria programming language using LLVM bindings in TypeScript.",
-  "main": "index.js",
   "scripts": {
     "install-modules": "npm i",
     "daemon-core": "nodemon --exec 'npx ts-node ./core/yttria.ts' --watch core",
