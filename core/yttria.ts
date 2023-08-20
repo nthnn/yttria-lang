@@ -34,6 +34,7 @@ import colors from 'colors';
 import LLVMGlobalContext from './llvm_context';
 import yargs from 'yargs';
 import YttriaUtil from './util';
+import { CompileTarget } from './project_structure';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
@@ -131,6 +132,7 @@ function main(): void {
     colors.enable();
     //printBanner(args);
 
+    CompileTarget.projectType = 'micro';
     llvmTest();
     //tokenizerTest();
 }

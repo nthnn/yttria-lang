@@ -5,7 +5,8 @@ import {
     BasicBlock,
     FunctionType,
     ConstantInt,
-    Value
+    Value,
+    Type
 } from "llvm-bindings";
 
 import {
@@ -20,6 +21,7 @@ import { ExprASTString } from "./ast_expr";
 
 import LLVMGlobalContext from "./llvm_context";
 import YttriaRuntime from "./yttria_runtime";
+import { CompileTarget } from "./project_structure";
 
 class StmtASTMain implements StatementAST {
     private mark: Token;
@@ -54,8 +56,25 @@ class StmtASTMain implements StatementAST {
         );
 
         builder.SetInsertPoint(main);
-        this.body.visit(builder, module);
+        if(CompileTarget.projectType == 'micro') {
+            builder.CreateCall(
+                YttriaRuntime.usartInit(module),
+                [
+                    ConstantInt.get(
+                        Type.getInt16Ty(LLVMGlobalContext),
+                        9600,
+                        true
+                    )
+                ]
+            );
 
+            builder.CreateCall(
+                YttriaRuntime.uartWait(module),
+                []
+            );
+        }
+
+        this.body.visit(builder, module);
         builder.CreateRet(
             ConstantInt.get(builder.getInt32Ty(), 0, true)
         );
@@ -97,8 +116,16 @@ class StmtASTRender implements StatementAST {
         let formatter: string = "";
         let formatted: Value = this.expr.visit(builder, module);
 
-        const dataType: DataType = this.expr.type();
+        if(CompileTarget.projectType == 'micro') {
+            builder.CreateCall(
+                YttriaRuntime.render(module),
+                [formatted]
+            );
 
+            return;
+        }
+
+        const dataType: DataType = this.expr.type();
         if(DataType.isOfIntType(dataType) ||
             dataType == DataType.BOOL) {
 

@@ -8,11 +8,24 @@ import {
 import { DataType } from "./data_type";
 
 import LLVMGlobalContext from "./llvm_context";
+import { CompileTarget } from "./project_structure";
 
 export default class YttriaRuntime {
     public static render(
         module: Module
     ): Function {
+        if(CompileTarget.projectType == 'micro')
+            return Function.Create(
+                FunctionType.get(
+                    Type.getVoidTy(LLVMGlobalContext),
+                    [Type.getInt8PtrTy(LLVMGlobalContext)],
+                    false
+                ),
+                GlobalValue.LinkageTypes.ExternalLinkage,
+                'uart_print',
+                module
+            );
+
         return Function.Create(
             FunctionType.get(
                 Type.getInt32Ty(LLVMGlobalContext),
@@ -21,6 +34,36 @@ export default class YttriaRuntime {
             ),
             GlobalValue.LinkageTypes.ExternalLinkage,
             'printf',
+            module
+        );
+    }
+
+    public static usartInit(
+        module: Module,
+    ): Function {
+        return Function.Create(
+            FunctionType.get(
+                Type.getVoidTy(LLVMGlobalContext),
+                [Type.getInt16Ty(LLVMGlobalContext)],
+                false
+            ),
+            GlobalValue.LinkageTypes.ExternalLinkage,
+            'uart_init',
+            module
+        );
+    }
+
+    public static uartWait(
+        module: Module,
+    ): Function {
+        return Function.Create(
+            FunctionType.get(
+                Type.getVoidTy(LLVMGlobalContext),
+                [],
+                false
+            ),
+            GlobalValue.LinkageTypes.ExternalLinkage,
+            'uart_wait',
             module
         );
     }
