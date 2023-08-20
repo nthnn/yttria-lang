@@ -1,9 +1,9 @@
 - Statement AST for:
   - if-else
   - coroute, wait, lock, and sync
-  - unsafe
   - while and do
   - break and continue
+  - for and repeat
 - Binary AST operations for << and >>.
 - Binary AST operations for +, -, /, *, ^, and %.
 - Equality AST operations for <, >, <=, and >=.
