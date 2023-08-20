@@ -2,6 +2,7 @@ import { hideBin } from 'yargs/helpers';
 
 import colors from 'colors';
 import yargs from 'yargs';
+import { ProjectGenerator } from './project_generator';
 
 function printBanner(args: any) {
     console.log();
@@ -19,9 +20,17 @@ function printBanner(args: any) {
         '│                                      │'
     );
 
-    if(args.help || args.h ||
-        args._.length == 0) {
-
+    if(args.help || args.h) {
+        console.log(
+            '├──────────────────────────────────────┤\n' +
+            '│ Argument Parameters:                 │\n' +
+            '│  --init, -i     Init a new project.  │\n' +
+            '└──────────────────────────────────────┘\n'
+        );
+    }
+    else if(!args.help && !args.init &&
+        !args.update && !args.h &&
+        !args.i && !args.h) {
         console.log(
             '├──────────────────────────────────────┤\n' +
             '│ Use ' + '-h'.italic + ' to print help screen.         │\n' +
@@ -35,9 +44,13 @@ function printBanner(args: any) {
 }
 
 function main(): void {
-    const args = yargs(hideBin(process.argv))
+    const args: any = yargs(hideBin(process.argv))
         .option('help', {
             alias: 'h',
+            type: 'boolean'
+        })
+        .option('init', {
+            alias: 'i',
             type: 'boolean'
         })
         .showHelp(()=> { })
@@ -46,6 +59,9 @@ function main(): void {
 
     colors.enable();
     printBanner(args);
+
+    if(args.init || args.i)
+        ProjectGenerator.run();
 }
 
 main();
