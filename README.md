@@ -1,6 +1,6 @@
 # Yttria Programming Language
 
-![NodeJS CI](https://github.com/nthnn/yttria-lang/actions/workflows/node_ci.yml/badge.svg)
+![NodeJS CI](https://github.com/nthnn/yttria-lang/actions/workflows/node_ci.yml/badge.svg) ![CodeQL](https://github.com/nthnn/yttria-lang/actions/workflows/codeql.yml/badge.svg)
 
 Yttria is a versatile and powerful general-purpose programming language designed to provide a coherent blend of performance, expressiveness, and ease of use. Developed using TypeScript, Yttria leverages LLVM bindings to generate an Intermediate Representation (IR), which can be further compiled using GCC for optimal performance and for target architectures.
 
@@ -23,15 +23,29 @@ git clone https://github.com/nthnn/yttria-lang.git
 
 - `npm run install-modules` - Used for installing required node modules. Should be executed after downloading or cloning the whole repository.
 
-- `npm run build` - For cleaning up existing multiple source file builds, and then re-building again.
+- `npm run daemon-core` - Command for starting a listening nodemon every code changes on the Yttria's compiler core.
 
-- `npm run daemon` - Command for starting a listening nodemon every code changes.
+- `npm run build-core` - For cleaning up existing multiple source file builds, and then re-building again the compiler core of Yttria.
 
-- `npm run clean` - Cleaning up all the build files.
+- `npm run clean-core` - Cleaning up all the compiler core build files.
 
-- `npm run pack` - Package up the latest code base to generate executables for Linux, macOS, Windows, and Alpine.
+- `npm run pack-core` - Package up the latest code base of the compiler core to generate executables for Linux, macOS, Windows, and Alpine.
 
-- `npm run yttria` - Run the latest built Yttria on console.
+- `npm run core` - Run the latest built Yttria compiler on console.
+
+- `npm run daemon-cli-tool` - Command for starting a listening nodemon every code changes on the CLI tool.
+
+- `npm run build-cli-tool` - For cleaning up existing multiple source file builds, and then re-building again the CLI tool.
+
+- `npm run clean-cli-tool` - Cleaning up all the CLI tool build files.
+
+- `npm run pack-cli-tool` - Package up the latest code base of the CLI tool to generate executables for Linux, macOS, Windows, and Alpine.
+
+- `npm run cli-tool` - Run the latest built CLI tool on console.
+
+- `npm run pack` - Can be used for packaging up both compiler core of Yttria and the CLI tool.
+
+- `npm run clean-packages` - Cleans up the build files and the distributable files.
 
 ## Contributing
 
