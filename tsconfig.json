@@ -3,7 +3,7 @@
     "target": "es2022",
     "lib": ["es6"],
     "module": "CommonJS",
-    "rootDir": "./src",
+    "rootDir": "./core",
     "sourceMap": false,
     "outDir": "./build",
     "removeComments": true,
@@ -14,6 +14,6 @@
     "skipLibCheck": true
   },
   "include": [
-     "src/**/*.ts"
+     "core/**/*.ts"
   ]
 }
