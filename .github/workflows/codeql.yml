@@ -25,16 +25,16 @@ jobs:
       - name: Install Dependencies
         run: npm install
         
-      - name: Build Application (if applicable)
+      - name: Build Application
         run: npm run pack
         
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           languages: javascript, typescript
         
       - name: Build CodeQL database
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
         with:
           query: "javascript-security-and-quality"
           languages: javascript, typescript
@@ -47,6 +47,6 @@ jobs:
           path: ${{github.workspace}}/codeql-db
         
       - name: Publish CodeQL Annotations
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{github.workspace}}/codeql-db/codeql-database/codeql.sarif

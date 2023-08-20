@@ -1,6 +1,6 @@
 # Yttria Programming Language
 
-![NodeJS CI](https://github.com/nthnn/yttria-lang/actions/workflows/node_ci.yml/badge.svg) ![CodeQL](https://github.com/nthnn/yttria-lang/actions/workflows/codeql.yml/badge.svg)
+![CodeQL](https://github.com/nthnn/yttria-lang/actions/workflows/codeql.yml/badge.svg)
 
 Yttria is a versatile and powerful general-purpose programming language designed to provide a coherent blend of performance, expressiveness, and ease of use. Developed using TypeScript, Yttria leverages LLVM bindings to generate an Intermediate Representation (IR), which can be further compiled using GCC for optimal performance and for target architectures.
 
