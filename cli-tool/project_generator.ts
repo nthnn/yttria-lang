@@ -200,7 +200,7 @@ export class ProjectGenerator {
 
         getTarget();
         while(target != '' &&
-            targetArchs)
+            targetArchs.indexOf(target) == -1)
             getTarget();
 
         if(target)
@@ -233,5 +233,7 @@ export class ProjectGenerator {
             ProjectGenerator.getOutputFolder(projectStruct);
             ProjectGenerator.getTarget(projectStruct);
         })();
+
+        CLIToolUtil.saveStructureToFile(projectStruct);
     }
 }

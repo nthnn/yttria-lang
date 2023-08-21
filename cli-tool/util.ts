@@ -1,4 +1,5 @@
 import fs from 'fs';
+import ProjectStructure from './project_structure';
 
 export class CLIToolUtil {
     public static prompt(message: string): string {
@@ -31,5 +32,14 @@ export class CLIToolUtil {
     ): boolean {
         return /^[^\\/?%*:|"<>\.]+$/
             .test(folderName);
+    }
+
+    public static saveStructureToFile(
+        projectStruct: ProjectStructure
+    ): void {
+        fs.writeFileSync(
+            'yttria-config.json',
+            JSON.stringify(projectStruct, null, 4)
+        );
     }
 }
