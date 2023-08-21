@@ -2,7 +2,10 @@ import fs from 'fs';
 
 export class CLIToolUtil {
     public static prompt(message: string): string {
-        let stdin: number = fs.openSync('/dev/stdin', 'rs');
+        let stdin: number = fs.openSync(
+            '/dev/stdin',
+            'rs'
+        );
         fs.writeSync(process.stdout.fd, message);
 
         let str: string = '';
@@ -21,5 +24,12 @@ export class CLIToolUtil {
         }
 
         return str;
+    }
+
+    public static isValidFolderName(
+        folderName: string
+    ): boolean {
+        return /^[^\\/?%*:|"<>\.]+$/
+            .test(folderName);
     }
 }
