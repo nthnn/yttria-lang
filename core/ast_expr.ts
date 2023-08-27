@@ -695,34 +695,30 @@ class ExprASTBinary implements ExpressionAST {
         const a: DataType = this.left.type();
         const b: DataType = this.right.type();
 
-        if(this.operator == '+' ||
-            this.operator == '-') {
-            if(DataType.isOfIntType(a) &&
-                DataType.isOfIntType(b))
-                return DataType.greaterIntegerType(a, b);
-            else if(DataType.isOfFloatType(a) &&
-                DataType.isOfFloatType(b))
-                return DataType.greaterFloatType(a, b);
-            else if(this.operator == '+' && (
-                (a == DataType.STRING &&
-                b == DataType.STRING) ||
-                (a == DataType.STRING &&
-                DataType.isOfIntType(b)) ||
-                (DataType.isOfIntType(a) &&
-                b == DataType.STRING)))
-                return DataType.STRING;
-        }
-        else if(this.operator == '*') {
-            if(a == DataType.STRING &&
-                DataType.isOfIntType(b))
-                return DataType.STRING;
-            else if(DataType.isOfIntType(a) &&
-                DataType.isOfIntType(b))
-                return DataType.greaterIntegerType(a, b);
-            else if(DataType.isOfFloatType(a) &&
-                DataType.isOfFloatType(b))
-                return DataType.greaterFloatType(a, b);
-        }
+        if(DataType.isOfIntType(a) &&
+            DataType.isOfIntType(b))
+            return DataType.greaterIntegerType(a, b);
+        else if(DataType.isOfFloatType(a) &&
+            DataType.isOfFloatType(b))
+            return DataType.greaterFloatType(a, b);
+        else if(DataType.isOfIntType(a) &&
+            DataType.isOfFloatType(b))
+            return b;
+        else if(DataType.isOfFloatType(a) &&
+            DataType.isOfIntType(b))
+            return a;
+        else if(this.operator == '+' && (
+            (a == DataType.STRING &&
+            b == DataType.STRING) ||
+            (a == DataType.STRING &&
+            DataType.isOfIntType(b)) ||
+            (DataType.isOfIntType(a) &&
+            b == DataType.STRING)) ||
+            (a == DataType.STRING &&
+            DataType.isOfFloatType(b)) ||
+            (DataType.isOfFloatType(a) &&
+            b == DataType.STRING))
+            return DataType.STRING;
 
         return DataType.UNKNOWN;
     }
