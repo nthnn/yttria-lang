@@ -666,6 +666,261 @@ class ExprASTAndOr implements ExpressionAST {
     }
 }
 
+class ExprASTBinary implements ExpressionAST {
+    private mark: Token;
+    private operator: string;
+    private left: ExpressionAST;
+    private right: ExpressionAST;
+
+    public constructor(
+        mark: Token,
+        operator: string,
+        left: ExpressionAST,
+        right: ExpressionAST
+    ) {
+        this.mark = mark;
+        this.operator = operator;
+        this.left = left;
+        this.right = right;
+    }
+
+    public visit(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        throw new ASTError('Invalid operation.');
+    }
+
+    public type(): DataType {
+        const a: DataType = this.left.type();
+        const b: DataType = this.right.type();
+
+        if(this.operator == '+' ||
+            this.operator == '-') {
+            if(DataType.isOfIntType(a) &&
+                DataType.isOfIntType(b))
+                return DataType.greaterIntegerType(a, b);
+            else if(DataType.isOfFloatType(a) &&
+                DataType.isOfFloatType(b))
+                return DataType.greaterFloatType(a, b);
+            else if(this.operator == '+' && (
+                (a == DataType.STRING &&
+                b == DataType.STRING) ||
+                (a == DataType.STRING &&
+                DataType.isOfIntType(b)) ||
+                (DataType.isOfIntType(a) &&
+                b == DataType.STRING)))
+                return DataType.STRING;
+        }
+        else if(this.operator == '*') {
+            if(a == DataType.STRING &&
+                DataType.isOfIntType(b))
+                return DataType.STRING;
+            else if(DataType.isOfIntType(a) &&
+                DataType.isOfIntType(b))
+                return DataType.greaterIntegerType(a, b);
+            else if(DataType.isOfFloatType(a) &&
+                DataType.isOfFloatType(b))
+                return DataType.greaterFloatType(a, b);
+        }
+
+        return DataType.UNKNOWN;
+    }
+
+    private resolveAdd(
+        leftType: DataType,
+        rightType: DataType,
+        results: ASTResolveResults,
+        unsafe: boolean
+    ): void {
+        if(DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType) &&
+            leftType != rightType &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose integer binary addition ' +
+                'operation with ' + leftType.toString() +
+                ' and ' + rightType.toString() + '.'
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType) &&
+            leftType != rightType &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose floating-point binary addition ' +
+                'operation with ' + leftType.toString() +
+                ' and ' + rightType.toString() + '.'
+            );
+        else if(DataType.isOfIntType(leftType) &&
+            DataType.isOfFloatType(rightType) &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose operation with \'+\' on type' +
+                leftType.toString() + ' and ' +
+                rightType.toString()
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfIntType(rightType) &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose operation with \'+\' on type' +
+                leftType.toString() + ' and ' +
+                rightType.toString()
+            );
+        else if((!DataType.isOfIntType(leftType) &&
+            !DataType.isOfFloatType(leftType) &&
+            leftType != DataType.STRING) ||
+            ((!DataType.isOfIntType(rightType) &&
+            !DataType.isOfFloatType(rightType) &&
+            rightType != DataType.STRING)))
+            results.errors.set(
+                this.marker(),
+                'Operator \'+\' cannot be used ' +
+                'with type of ' + leftType.toString() +
+                'and type of ' + rightType.toString() + '.'
+            );
+    }
+
+    private resolveOperation(
+        leftType: DataType,
+        rightType: DataType,
+        results: ASTResolveResults,
+        unsafe: boolean
+    ): void {
+        if(DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType) &&
+            leftType != rightType &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose integer binary \'' + this.operator +
+                '\' operation with ' + leftType.toString() +
+                ' and ' + rightType.toString() + '.'
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType) &&
+            leftType != rightType &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose floating-point binary \'' +
+                this.operator + '\' operation with ' +
+                leftType.toString() + ' and ' +
+                rightType.toString() + '.'
+            );
+        else if(DataType.isOfIntType(leftType) &&
+            DataType.isOfFloatType(rightType) &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose operation with \'' + this.operator +
+                '\' on type' + leftType.toString() +
+                ' and ' + rightType.toString()
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfIntType(rightType) &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Loose operation with \'' + this.operator +
+                '\' on type' + leftType.toString() +
+                ' and ' + rightType.toString() + '.'
+            );
+        else if((!DataType.isOfIntType(leftType) &&
+            !DataType.isOfFloatType(leftType)) ||
+            ((!DataType.isOfIntType(rightType) &&
+            !DataType.isOfFloatType(rightType))))
+            results.errors.set(
+                this.marker(),
+                'Operator \'' + this.operator +
+                '\' cannot be used with type of ' +
+                leftType.toString() + 'and type of ' +
+                rightType.toString() + '.'
+        );
+    }
+
+    public resolveExpressions(
+        results: ASTResolveResults,
+        returnType: DataType,
+        unsafe: boolean
+    ): void {
+        this.left.resolve(
+            results,
+            returnType,
+            unsafe
+        );
+
+        this.right.resolve(
+            results,
+            returnType,
+            unsafe
+        );
+    }
+
+    public resolve(
+        results: ASTResolveResults,
+        returnType: DataType,
+        unsafe: boolean
+    ): void {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(this.operator == '+')
+            this.resolveAdd(
+                leftType,
+                rightType,
+                results,
+                unsafe
+            );
+        else if(this.operator == '-' ||
+            this.operator == '/' ||
+            this.operator == '*' ||
+            this.operator == '%')
+            this.resolveOperation(
+                leftType,
+                rightType,
+                results,
+                unsafe
+            );
+        else if(this.operator == '^' &&
+            !DataType.isOfIntType(leftType) &&
+            !DataType.isOfIntType(rightType) &&
+            !unsafe)
+            results.warnings.set(
+                this.marker(),
+                'Invalid \'^\' operation with ' +
+                leftType.toString() + ' and ' +
+                rightType.toString()
+            );
+        else if((this.operator == '<<' ||
+            this.operator == '>>') &&
+            (!DataType.isOfIntType(leftType) &&
+            !DataType.isOfIntType(rightType)))
+            results.errors.set(
+                this.marker(),
+                'Invalid binary shift (' + this.operator +
+                ') operation with ' + leftType.toString() +
+                ' and ' + rightType.toString()
+            );
+
+        this.resolveExpressions(
+            results,
+            returnType,
+            unsafe
+        );
+    }
+
+    public marker(): Token {
+        return this.mark;
+    }
+}
+
 export {
     ExprASTBool,
     ExprASTAndOr,

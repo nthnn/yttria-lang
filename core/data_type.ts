@@ -76,6 +76,13 @@ class DataType {
         return b;
     }
 
+    public static greaterFloatType(
+        a: DataType,
+        b: DataType
+    ) {
+        return a != DataType.F32 ? a : b;
+    }
+
     public static isOfIntType(
         type: DataType
     ): boolean {
