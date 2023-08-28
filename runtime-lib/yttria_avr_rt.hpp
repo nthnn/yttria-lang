@@ -1,5 +1,5 @@
-#ifndef YTTRIA_AVR_RT_H
-#define YTTRIA_AVR_RT_H
+#ifndef YTTRIA_AVR_RT_HPP
+#define YTTRIA_AVR_RT_HPP
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-void pin_setup(uint8_t port, uint8_t pinNumber, uint8_t mode) {
+void __yttria_pin_setup(uint8_t port, uint8_t pinNumber, uint8_t mode) {
     switch(port) {
         case 'B':
         case 'b':
@@ -45,7 +45,7 @@ void pin_setup(uint8_t port, uint8_t pinNumber, uint8_t mode) {
     }
 }
 
-void digital_write(uint8_t port, uint8_t pinNumber, uint8_t value) {
+void __yttria_digital_write(uint8_t port, uint8_t pinNumber, uint8_t value) {
     switch(port) {
         case 'B':
         case 'b':
@@ -76,7 +76,7 @@ void digital_write(uint8_t port, uint8_t pinNumber, uint8_t value) {
     }
 }
 
-uint8_t digital_read(uint8_t port, uint8_t pinNumber) {
+uint8_t __yttria_digital_read(uint8_t port, uint8_t pinNumber) {
     switch (port) {
         case 'B':
         case 'b':
@@ -95,7 +95,7 @@ uint8_t digital_read(uint8_t port, uint8_t pinNumber) {
     }
 }
 
-void uart_init(uint32_t baudRate) {
+void __yttria_uart_init(uint32_t baudRate) {
     uint16_t ubrrValue = (F_CPU / (16 * baudRate)) - 1;
     
     UBRR0H = (uint8_t)(ubrrValue >> 8);
@@ -104,16 +104,16 @@ void uart_init(uint32_t baudRate) {
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
-void uart_wait() {
+void __yttria_uart_wait() {
     while(!(UCSR0A & (1 << UDRE0)));
 }
 
-void uart_write(char data) {
+void __yttria_uart_write(char data) {
     uart_wait();
     UDR0 = data;
 }
 
-void uart_print(const char* str) {
+void __yttria_uart_print(const char* str) {
     while(*str != '\0') {
         uart_write(*str);
         str++;
