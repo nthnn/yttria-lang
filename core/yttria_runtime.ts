@@ -38,6 +38,21 @@ export default class YttriaRuntime {
         );
     }
 
+    public static uartWait(
+        module: Module,
+    ): Function {
+        return Function.Create(
+            FunctionType.get(
+                Type.getVoidTy(LLVMGlobalContext),
+                [],
+                false
+            ),
+            GlobalValue.LinkageTypes.ExternalLinkage,
+            '__yttria_uart_wait',
+            module
+        );
+    }
+
     public static usartInit(
         module: Module,
     ): Function {
