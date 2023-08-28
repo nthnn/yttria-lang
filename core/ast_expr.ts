@@ -684,10 +684,104 @@ class ExprASTBinary implements ExpressionAST {
         this.right = right;
     }
 
+    private visitAdd(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType))
+            return builder.CreateIntCast(
+                builder.CreateAdd(
+                    this.left.visit(builder, module),
+                    this.right.visit(builder, module)
+                ),
+                DataType.greaterIntegerType(
+                    leftType, rightType
+                ).getLLVMType(),
+                true
+            );
+        else if(DataType.isOfIntType(leftType) &&
+            DataType.isOfFloatType(rightType)) {
+            const outputType: Type =
+                rightType.getLLVMType();
+
+            return builder.CreateFPCast(
+                builder.CreateFAdd(
+                    builder.CreateFPCast(
+                        this.left.visit(builder, module),
+                        outputType
+                    ),
+                    this.right.visit(builder, module)
+                ),
+                outputType
+            );
+        }
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFPCast(
+                builder.CreateFAdd(
+                    this.left.visit(builder, module),
+                    this.right.visit(builder, module)
+                ),
+                DataType.greaterFloatType(
+                    leftType,
+                    rightType
+                ).getLLVMType()
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfIntType(rightType)) {
+            const outputType: Type =
+                leftType.getLLVMType();
+
+            return builder.CreateFAdd(
+                this.left.visit(
+                    builder,
+                    module
+                ),
+                builder.CreateBitCast(
+                    this.right.visit(
+                        builder,
+                        module
+                    ),
+                    outputType
+                )
+            );
+        }
+        else if(leftType == DataType.STRING &&
+            rightType == DataType.STRING) {
+            return builder.CreateCall(
+                YttriaRuntime.concatStrStr(module),
+                [
+                    this.left.visit(
+                        builder,
+                        module
+                    ),
+                    this.right.visit(
+                        builder,
+                        module
+                    )
+                ]
+            );
+        }
+
+        throw new ASTError('Invalid operation.');
+    }
+
     public visit(
         builder: IRBuilder,
         module: Module
     ): Value {
+        if(this.operator == '+')
+            return this.visitAdd(
+                builder,
+                module
+            );
+
         throw new ASTError('Invalid operation.');
     }
 

@@ -1,4 +1,4 @@
-import {
+import llvm, {
     Function,
     FunctionType,
     GlobalValue,
@@ -22,7 +22,7 @@ export default class YttriaRuntime {
                     false
                 ),
                 GlobalValue.LinkageTypes.ExternalLinkage,
-                'uart_print',
+                '__yttria_uart_print',
                 module
             );
 
@@ -48,22 +48,7 @@ export default class YttriaRuntime {
                 false
             ),
             GlobalValue.LinkageTypes.ExternalLinkage,
-            'uart_init',
-            module
-        );
-    }
-
-    public static uartWait(
-        module: Module,
-    ): Function {
-        return Function.Create(
-            FunctionType.get(
-                Type.getVoidTy(LLVMGlobalContext),
-                [],
-                false
-            ),
-            GlobalValue.LinkageTypes.ExternalLinkage,
-            'uart_wait',
+            '__yttria_uart_init',
             module
         );
     }
@@ -94,6 +79,27 @@ export default class YttriaRuntime {
             ),
             GlobalValue.LinkageTypes.ExternalLinkage,
             'fabs', module
+        );
+    }
+
+    public static concatStrStr(
+        module: Module
+    ): Function {
+        const llvmStringType: Type =
+            DataType.STRING.getLLVMType();
+
+        return Function.Create(
+            FunctionType.get(
+                llvmStringType,
+                [
+                    llvmStringType,
+                    llvmStringType
+                ],
+                false
+            ),
+            GlobalValue.LinkageTypes.ExternalLinkage,
+            '__yttria_concat_str',
+            module
         );
     }
 }
