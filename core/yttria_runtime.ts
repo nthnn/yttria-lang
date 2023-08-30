@@ -117,4 +117,26 @@ export default class YttriaRuntime {
             module
         );
     }
+
+    public static convertI2S(
+        module: Module,
+        leftType: Type
+    ): Function {
+        const stringType: Type =
+            DataType.STRING.getLLVMType();
+
+            return Function.Create(
+            FunctionType.get(
+                stringType,
+                [
+                    leftType,
+                    stringType
+                ],
+                false
+            ),
+            GlobalValue.LinkageTypes.ExternalLinkage,
+            '__yttria_conv_i2s',
+            module
+        );
+    }
 }

@@ -753,7 +753,7 @@ class ExprASTBinary implements ExpressionAST {
             );
         }
         else if(leftType == DataType.STRING &&
-            rightType == DataType.STRING) {
+            rightType == DataType.STRING)
             return builder.CreateCall(
                 YttriaRuntime.concatStrStr(module),
                 [
@@ -767,7 +767,42 @@ class ExprASTBinary implements ExpressionAST {
                     )
                 ]
             );
-        }
+        else if(DataType.isOfIntType(leftType) &&
+            rightType == DataType.STRING)
+            return builder.CreateCall(
+                YttriaRuntime.concatStrStr(module),
+                [
+                    builder.CreateCall(
+                        YttriaRuntime.convertI2S(
+                            module,
+                            leftType.getLLVMType()
+                        ),
+                        [this.left.visit(builder,module)]
+                    ),
+                    this.right.visit(
+                        builder,
+                        module
+                    )
+                ]
+            );
+        else if(leftType == DataType.STRING &&
+            DataType.isOfIntType(rightType))
+            return builder.CreateCall(
+                YttriaRuntime.concatStrStr(module),
+                [
+                    this.left.visit(
+                        builder,
+                        module
+                    ),
+                    builder.CreateCall(
+                        YttriaRuntime.convertI2S(
+                            module,
+                            rightType.getLLVMType()
+                        ),
+                        [this.right.visit(builder,module)]
+                    )
+                ]
+            );
 
         throw new ASTError('Invalid operation.');
     }
