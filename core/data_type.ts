@@ -33,7 +33,7 @@ class DataType {
     public static VOID: DataType =
         new DataType("void", 0, Type.getVoidTy(LLVMGlobalContext));
     public static STRING: DataType =
-        new DataType("string", 0, undefined);
+        new DataType("string", 0, Type.getInt32PtrTy(LLVMGlobalContext));
     public static BOOL: DataType =
         new DataType("bool", 1, undefined);
 

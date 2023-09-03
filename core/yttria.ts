@@ -17,6 +17,7 @@ import {
 
 import {
     ExprASTAndOr,
+    ExprASTBinary,
     ExprASTBool,
     ExprASTFloat,
     ExprASTInt,
@@ -67,11 +68,11 @@ function llvmTest() {
         LLVMGlobalContext
     );
 
-    const expr1: ExprASTInt = new ExprASTInt(nullToken, BigInt('101'), 32);
+    const expr1: ExprASTFloat = new ExprASTFloat(nullToken, 3101.14, 32);
     const expr2: ExprASTInt = new ExprASTInt(nullToken, BigInt('99'), 32);
 
-    const cmp: ExprASTAndOr = new ExprASTAndOr(nullToken, '&', expr1, expr2);
-    const body: StmtASTRender = new StmtASTRender(nullToken, new ExprASTString(nullToken, "Hello, from Yttria!"));
+    const cmp: ExprASTBinary = new ExprASTBinary(nullToken, '-', expr1, expr2);
+    const body: StmtASTRender = new StmtASTRender(nullToken, new ExprASTBinary(nullToken, '+', new ExprASTString(nullToken, "The output is "), cmp));
 
     const main: StmtASTMain = new StmtASTMain(
         nullToken,
@@ -132,7 +133,6 @@ function main(): void {
     colors.enable();
     //printBanner(args);
 
-    CompileTarget.projectType = 'micro';
     llvmTest();
     //tokenizerTest();
 }

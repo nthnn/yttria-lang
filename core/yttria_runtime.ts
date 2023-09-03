@@ -150,10 +150,7 @@ export default class YttriaRuntime {
             return Function.Create(
             FunctionType.get(
                 stringType,
-                [
-                    outType,
-                    stringType
-                ],
+                [outType],
                 false
             ),
             GlobalValue.LinkageTypes.ExternalLinkage,

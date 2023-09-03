@@ -753,20 +753,32 @@ class ExprASTBinary implements ExpressionAST {
             );
         }
         else if(leftType == DataType.STRING &&
-            rightType == DataType.STRING)
-            return builder.CreateCall(
+            rightType == DataType.STRING) {
+            const strType: Type =
+                DataType.STRING.getLLVMType();
+
+                return builder.CreateCall(
                 YttriaRuntime.concatStrStr(module),
                 [
-                    this.left.visit(
-                        builder,
-                        module
+                    builder.CreateIntCast(
+                        this.left.visit(
+                            builder,
+                            module
+                        ),
+                        strType,
+                        true
                     ),
-                    this.right.visit(
-                        builder,
-                        module
-                    )
+                    builder.CreateIntCast(
+                        this.right.visit(
+                            builder,
+                            module
+                        ),
+                        strType,
+                        true
+                    ),
                 ]
             );
+        }
         else if(DataType.isOfIntType(leftType) &&
             rightType == DataType.STRING)
             return builder.CreateCall(
@@ -843,12 +855,60 @@ class ExprASTBinary implements ExpressionAST {
         throw new ASTError('Invalid operation.');
     }
 
+    private visitSub(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType))
+            return builder.CreateSub(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfIntType(leftType) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFSub(
+                builder.CreateFPCast(
+                    this.left.visit(builder, module),
+                    rightType.getLLVMType()
+                ),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFSub(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfIntType(rightType))
+            return builder.CreateFSub(
+                this.left.visit(builder, module),
+                builder.CreateFPCast(
+                    this.right.visit(builder, module),
+                    rightType.getLLVMType()
+                )
+            );
+
+        throw new ASTError('Invalid operation.');
+    }
+
     public visit(
         builder: IRBuilder,
         module: Module
     ): Value {
         if(this.operator == '+')
             return this.visitAdd(
+                builder,
+                module
+            );
+        else if(this.operator == '-')
+            return this.visitSub(
                 builder,
                 module
             );
@@ -1084,6 +1144,7 @@ class ExprASTBinary implements ExpressionAST {
 
 export {
     ExprASTBool,
+    ExprASTBinary,
     ExprASTAndOr,
     ExprASTEquality,
     ExprASTString,
