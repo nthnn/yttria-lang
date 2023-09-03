@@ -1,6 +1,3 @@
-#ifndef YTTRIA_AVR_RT_HPP
-#define YTTRIA_AVR_RT_HPP
-
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -122,6 +119,4 @@ void __yttria_uart_print(const char* str) {
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

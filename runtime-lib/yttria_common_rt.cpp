@@ -1,9 +1,10 @@
-#ifndef YTTRIA_COMMON_RT_HPP
-#define YTTRIA_COMMON_RT_HPP
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 char* __yttria_conv_f2s(double num) {
     char buffer[64];
@@ -62,4 +63,6 @@ char* __yttria_concat_str(char* x, char* y) {
     return result;
 }
 
+#ifdef __cplusplus
+}
 #endif
