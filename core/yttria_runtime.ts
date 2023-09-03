@@ -120,7 +120,7 @@ export default class YttriaRuntime {
 
     public static convertI2S(
         module: Module,
-        leftType: Type
+        outType: Type
     ): Function {
         const stringType: Type =
             DataType.STRING.getLLVMType();
@@ -129,13 +129,35 @@ export default class YttriaRuntime {
             FunctionType.get(
                 stringType,
                 [
-                    leftType,
+                    outType,
                     stringType
                 ],
                 false
             ),
             GlobalValue.LinkageTypes.ExternalLinkage,
             '__yttria_conv_i2s',
+            module
+        );
+    }
+
+    public static convertF2S(
+        module: Module,
+        outType: Type
+    ): Function {
+        const stringType: Type =
+            DataType.STRING.getLLVMType();
+
+            return Function.Create(
+            FunctionType.get(
+                stringType,
+                [
+                    outType,
+                    stringType
+                ],
+                false
+            ),
+            GlobalValue.LinkageTypes.ExternalLinkage,
+            '__yttria_conv_f2s',
             module
         );
     }

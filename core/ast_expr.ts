@@ -803,6 +803,42 @@ class ExprASTBinary implements ExpressionAST {
                     )
                 ]
             );
+        else if(DataType.isOfFloatType(leftType) &&
+            rightType == DataType.STRING)
+            return builder.CreateCall(
+                YttriaRuntime.concatStrStr(module),
+                [
+                    builder.CreateCall(
+                        YttriaRuntime.convertF2S(
+                            module,
+                            leftType.getLLVMType()
+                        ),
+                        [this.left.visit(builder,module)]
+                    ),
+                    this.right.visit(
+                        builder,
+                        module
+                    )
+                ]
+            );
+        else if(leftType == DataType.STRING &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateCall(
+                YttriaRuntime.concatStrStr(module),
+                [
+                    this.left.visit(
+                        builder,
+                        module
+                    ),
+                    builder.CreateCall(
+                        YttriaRuntime.convertF2S(
+                            module,
+                            rightType.getLLVMType()
+                        ),
+                        [this.right.visit(builder,module)]
+                    )
+                ]
+            );
 
         throw new ASTError('Invalid operation.');
     }

@@ -5,7 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* __yttria_conv_i2s(int num) {
+char* __yttria_conv_f2s(double num) {
+    char buffer[64];
+    int ret = snprintf(buffer, sizeof(buffer), "%.8f", num);
+
+    if (ret < 0)
+        return "0.0";
+    if (ret >= sizeof(buffer))
+        return "nil";
+
+    return strtok(buffer, "");
+}
+
+char* __yttria_conv_i2s(long num) {
     int temp = num, len = (num == 0) ? 1 : ((num < 0) ? len + 1 : len);
 
     while(temp != 0) {
