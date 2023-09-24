@@ -15,26 +15,19 @@ import {
     TokenizerResult
 } from './tokenizer/tokenizer';
 
-import {
-    ExprASTAndOr,
-    ExprASTBinary,
-    ExprASTBool,
-    ExprASTFloat,
-    ExprASTInt,
-    ExprASTString
-} from './ast/ast_expr';
-
-import {
-    StmtASTMain,
-    StmtASTRender
-} from './ast/ast_stmt';
-
 import { hideBin } from 'yargs/helpers';
 
 import colors from 'colors';
 import LLVMGlobalContext from './compiler/llvm_context';
 import yargs from 'yargs';
 import YttriaUtil from './util/util';
+
+import ExprASTString from "./ast/expr/expr_string";
+import ExprASTInt from "./ast/expr/expr_int";
+import ExprASTBinary from "./ast/expr/expr_binary";
+
+import StmtASTRender from "./ast/stmt/stmt_render";
+import StmtASTMain from "./ast/stmt/stmt_main";
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
