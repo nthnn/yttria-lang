@@ -33,7 +33,7 @@ class DataType {
     public static VOID: DataType =
         new DataType("void", 0, Type.getVoidTy(LLVMGlobalContext));
     public static STRING: DataType =
-        new DataType("string", 0, Type.getInt32PtrTy(LLVMGlobalContext));
+        new DataType("string", 0, Type.getInt8PtrTy(LLVMGlobalContext));
     public static BOOL: DataType =
         new DataType("bool", 1, undefined);
 
@@ -47,6 +47,17 @@ class DataType {
         new DataType("i32", 32, Type.getInt32Ty(LLVMGlobalContext));
     public static I64: DataType =
         new DataType("i64", 64, Type.getInt64Ty(LLVMGlobalContext));
+
+    public static UI4: DataType =
+        new DataType("ui4", 4, Type.getIntNTy(LLVMGlobalContext, 4));
+    public static UI8: DataType =
+        new DataType("ui8", 8, Type.getIntNTy(LLVMGlobalContext, 8));
+    public static UI16: DataType =
+        new DataType("ui16", 16, Type.getInt16Ty(LLVMGlobalContext));
+    public static UI32: DataType =
+        new DataType("ui32", 32, Type.getInt32Ty(LLVMGlobalContext));
+    public static UI64: DataType =
+        new DataType("ui64", 64, Type.getInt64Ty(LLVMGlobalContext));
 
     public static F32: DataType =
         new DataType("f32", 32, Type.getFloatTy(LLVMGlobalContext));

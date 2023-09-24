@@ -15,13 +15,13 @@ import {
     StatementAST
 } from "./ast";
 
-import { Token } from "./token";
-import { DataType } from "./data_type";
+import { Token } from "../tokenizer/token";
+import { DataType } from "../compiler/data_type";
 import { ExprASTString } from "./ast_expr";
 
-import LLVMGlobalContext from "./llvm_context";
-import YttriaRuntime from "./yttria_runtime";
-import { CompileTarget } from "./project_structure";
+import LLVMGlobalContext from "../llvm_context";
+import YttriaRuntime from "../compiler/yttria_runtime";
+import { CompileTarget } from "../project_structure";
 
 class StmtASTMain implements StatementAST {
     private mark: Token;

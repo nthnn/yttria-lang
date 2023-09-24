@@ -8,13 +8,13 @@ import {
 } from "llvm-bindings";
 
 import { ASTResolveResults, ExpressionAST } from "./ast";
-import { DataType, LLVMDataType } from "./data_type";
-import { Token } from "./token";
+import { DataType, LLVMDataType } from "../compiler/data_type";
+import { Token } from "../tokenizer/token";
 
 import ASTError from "./ast_exception";
-import YttriaUtil from "./util";
-import YttriaRuntime from "./yttria_runtime";
-import LLVMGlobalContext from "./llvm_context";
+import YttriaUtil from "../util/util";
+import YttriaRuntime from "../compiler/yttria_runtime";
+import LLVMGlobalContext from "../compiler/llvm_context";
 
 class ExprASTBool implements ExpressionAST {
     private value: boolean;

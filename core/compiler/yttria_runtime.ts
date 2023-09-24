@@ -8,7 +8,7 @@ import llvm, {
 import { DataType } from "./data_type";
 
 import LLVMGlobalContext from "./llvm_context";
-import { CompileTarget } from "./project_structure";
+import { CompileTarget } from "../project_structure";
 
 export default class YttriaRuntime {
     public static render(
@@ -128,10 +128,7 @@ export default class YttriaRuntime {
             return Function.Create(
             FunctionType.get(
                 stringType,
-                [
-                    outType,
-                    stringType
-                ],
+                [outType],
                 false
             ),
             GlobalValue.LinkageTypes.ExternalLinkage,

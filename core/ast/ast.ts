@@ -5,8 +5,8 @@ import {
     Value
 } from 'llvm-bindings';
 
-import { DataType } from './data_type';
-import { Token } from './token';
+import { DataType } from '../compiler/data_type';
+import { Token } from '../tokenizer/token';
 
 interface ASTResolveResults {
     errors: Map<Token, string>;
