@@ -19,7 +19,7 @@ import { Token } from "../tokenizer/token";
 import { DataType } from "../compiler/data_type";
 import { ExprASTString } from "./ast_expr";
 
-import LLVMGlobalContext from "../llvm_context";
+import LLVMGlobalContext from "../compiler/llvm_context";
 import YttriaRuntime from "../compiler/yttria_runtime";
 import { CompileTarget } from "../project_structure";
 

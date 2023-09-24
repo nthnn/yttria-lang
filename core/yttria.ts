@@ -8,12 +8,12 @@ import {
 import {
     Token,
     TokenUtil
-} from './token';
+} from './tokenizer/token';
 
 import {
     Tokenizer,
     TokenizerResult
-} from './tokenizer';
+} from './tokenizer/tokenizer';
 
 import {
     ExprASTAndOr,
@@ -22,19 +22,19 @@ import {
     ExprASTFloat,
     ExprASTInt,
     ExprASTString
-} from './ast_expr';
+} from './ast/ast_expr';
 
 import {
     StmtASTMain,
     StmtASTRender
-} from './ast_stmt';
+} from './ast/ast_stmt';
 
 import { hideBin } from 'yargs/helpers';
 
 import colors from 'colors';
-import LLVMGlobalContext from './llvm_context';
+import LLVMGlobalContext from './compiler/llvm_context';
 import yargs from 'yargs';
-import YttriaUtil from './util';
+import YttriaUtil from './util/util';
 
 function tokenizerTest() {
     var tokenizer = new Tokenizer(
