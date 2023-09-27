@@ -1,7 +1,8 @@
+import { ASTResolveResults, StatementAST } from "../ast";
 import { IRBuilder, Module } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
-import { ASTResolveResults, StatementAST } from "../ast";
-import { DataType } from "../../compiler/data_type";
+
+import DataType from "../../compiler/data_type";
 
 export default class StmtASTUnsafe implements StatementAST {
     private mark: Token;

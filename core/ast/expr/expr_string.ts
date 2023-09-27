@@ -1,8 +1,9 @@
 import { IRBuilder, Module, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
+
+import DataType from "../../compiler/data_type";
 import YttriaUtil from "../../util/util";
-import { DataType } from "../../compiler/data_type";
 
 export default class ExprASTString implements ExpressionAST {
     private value: string;

@@ -1,8 +1,8 @@
 import { IRBuilder, Module } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, StatementAST } from "../ast";
-import { DataType } from "../../compiler/data_type";
 
+import DataType from "../../compiler/data_type";
 import StmtASTDefer from "./stmt_defer";
 import StmtASTReturn from "./stmt_return";
 

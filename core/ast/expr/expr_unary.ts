@@ -1,11 +1,12 @@
 import { IRBuilder, Module, Type, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
-import { DataType } from "../../compiler/data_type";
-import YttriaUtil from "../../util/util";
+
+import ASTError from "../ast_exception";
+import DataType from "../../compiler/data_type";
 import LLVMGlobalContext from "../../compiler/llvm_context";
 import YttriaRuntime from "../../compiler/yttria_runtime";
-import ASTError from "../ast_exception";
+import YttriaUtil from "../../util/util";
 
 export class ExprASTUnary implements ExpressionAST {
     private operator: string;
@@ -29,14 +30,15 @@ export class ExprASTUnary implements ExpressionAST {
 
         const visited: Value =
             this.expr.visit(builder, module);
+        const type: DataType = this.type();
 
         if(this.operator == '-') {
-            if(DataType.isOfFloatType(this.type()))
+            if(DataType.isOfFloatType(type))
                 return builder.CreateFNeg(
                     visited,
                     YttriaUtil.generateRandomHash()
                 );
-            else if(this.type() == DataType.BOOL)
+            else if(type == DataType.BOOL)
                 return builder.CreateIntCast(
                     builder.CreateNeg(
                         visited,
@@ -51,9 +53,7 @@ export class ExprASTUnary implements ExpressionAST {
             );
         }
         else if(this.operator == '+') {
-            const type: DataType = this.type();
-
-            if(DataType.isOfIntType(type))
+            if(DataType.isOfIntType(type) || DataType.isOfUIntType(type))
                 return builder.CreateCall(
                     YttriaRuntime.iabs(module, type.getLLVMType()),
                     [visited],
@@ -108,7 +108,8 @@ export class ExprASTUnary implements ExpressionAST {
         else if((this.operator == '+' ||
             this.operator == '-') && (
             !DataType.isOfFloatType(dataType) &&
-            !DataType.isOfIntType(dataType)))
+            !DataType.isOfIntType(dataType) &&
+            !DataType.isOfUIntType(dataType)))
             results.errors.set(
                 mrk,
                 'Unary operator ' + this.operator +

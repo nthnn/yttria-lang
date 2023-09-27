@@ -153,4 +153,18 @@ export default class DataType {
         return type == DataType.F32 ||
             type == DataType.F64;
     }
+
+    public static isBothOfIntegerType(a: DataType, b: DataType): boolean {
+        return (DataType.isOfIntType(a) || DataType.isOfUIntType(a)) &&
+            (DataType.isOfIntType(b) || DataType.isOfUIntType(b));
+    }
+
+    public static isSigned(type: DataType): boolean {
+        return type.name.startsWith("i");
+    }
+
+    public static hasSameSignature(a: DataType, b: DataType): boolean {
+        return DataType.isBothOfIntegerType(a, b) &&
+            (a.name.startsWith("i") && b.name.startsWith("i"));
+    }
 }

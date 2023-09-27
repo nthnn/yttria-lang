@@ -5,7 +5,7 @@ import {
     Value
 } from 'llvm-bindings';
 
-import { DataType } from '../compiler/data_type';
+import DataType from '../compiler/data_type';
 import { Token } from '../tokenizer/token';
 
 interface ASTResolveResults {

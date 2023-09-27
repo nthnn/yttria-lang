@@ -1,14 +1,14 @@
-import llvm, {
+import {
     Function,
     FunctionType,
     GlobalValue,
     Module,
     Type
 } from "llvm-bindings";
-import { DataType } from "./data_type";
-
-import LLVMGlobalContext from "./llvm_context";
 import { CompileTarget } from "../project_structure";
+
+import DataType from "./data_type";
+import LLVMGlobalContext from "./llvm_context";
 
 export default class YttriaRuntime {
     public static render(

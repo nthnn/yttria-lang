@@ -2,9 +2,10 @@ import { IRBuilder, Module, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST, StatementAST } from "../ast";
 import { CompileTarget } from "../../project_structure";
-import YttriaRuntime from "../../compiler/yttria_runtime";
-import { DataType } from "../../compiler/data_type";
+
+import DataType from "../../compiler/data_type";
 import ExprASTString from "../expr/expr_string";
+import YttriaRuntime from "../../compiler/yttria_runtime";
 
 export default class StmtASTRender implements StatementAST {
     private mark: Token;

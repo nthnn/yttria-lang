@@ -1,10 +1,11 @@
 import { BasicBlock, ConstantInt, Function, FunctionType, IRBuilder, Module, Type } from "llvm-bindings";
-import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, StatementAST } from "../ast";
+import { CompileTarget } from "../../project_structure";
+import { Token } from "../../tokenizer/token";
+
+import DataType from "../../compiler/data_type";
 import LLVMGlobalContext from "../../compiler/llvm_context";
 import YttriaRuntime from "../../compiler/yttria_runtime";
-import { DataType } from "../../compiler/data_type";
-import { CompileTarget } from "../../project_structure";
 
 export default class StmtASTMain implements StatementAST {
     private mark: Token;

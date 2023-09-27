@@ -1,8 +1,9 @@
 import { IRBuilder, Module, Type, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
-import { DataType } from "../../compiler/data_type";
+
 import ASTError from "../ast_exception";
+import DataType from "../../compiler/data_type";
 import YttriaRuntime from "../../compiler/yttria_runtime";
 
 export default class ExprASTBinary implements ExpressionAST {

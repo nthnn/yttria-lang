@@ -1,7 +1,8 @@
-import { IRBuilder, Module, Value } from "llvm-bindings";
+import { ConstantInt, IRBuilder, Module, Type, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
-import { DataType } from "../../compiler/data_type";
+import DataType from "../../compiler/data_type";
+import LLVMGlobalContext from "../../compiler/llvm_context";
 
 export default class ExprASTEquality implements ExpressionAST {
     private mark: Token;
@@ -52,11 +53,14 @@ export default class ExprASTEquality implements ExpressionAST {
         if(DataType.isOfFloatType(leftType) &&
             DataType.isOfFloatType(rightType))
             funcAddr = (this.operator == '==' ? 2 : 3);
-        else if(DataType.isOfIntType(leftType) &&
-            DataType.isOfIntType(rightType))
+        else if((DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType)) ||
+            (DataType.isOfUIntType(leftType) &&
+            DataType.isOfUIntType(rightType)))
             funcAddr = (this.operator == '==' ? 0 : 1);
         else if(DataType.isOfFloatType(leftType) &&
-            DataType.isOfIntType(rightType)) {
+            (DataType.isOfIntType(rightType) ||
+            DataType.isOfUIntType(rightType))) {
 
             funcAddr = (this.operator == '==' ? 2 : 3);
             rightExpr = builder.CreateIntCast(
@@ -65,7 +69,8 @@ export default class ExprASTEquality implements ExpressionAST {
                 true
             );
         }
-        else if(DataType.isOfIntType(leftType) &&
+        else if((DataType.isOfIntType(leftType) ||
+            DataType.isOfUIntType(leftType)) &&
             DataType.isOfFloatType(rightType)) {
 
             funcAddr = (this.operator == '==' ? 0 : 1);
@@ -75,10 +80,13 @@ export default class ExprASTEquality implements ExpressionAST {
             );
         }
         else if((leftType == DataType.BOOL &&
-            rightType == DataType.BOOL) &&
-            (leftType == DataType.STRING &&
-                rightType == DataType.STRING))
-            funcAddr = (this.operator == '==' ? 0 : 1);
+            rightType == DataType.BOOL) ||
+                (leftType == DataType.STRING &&
+                    rightType == DataType.STRING))
+            return ConstantInt.get(
+                Type.getIntNTy(LLVMGlobalContext, 1),
+                0, false
+            );
 
         return funcBuilder[funcAddr](
             leftExpr,
@@ -99,6 +107,14 @@ export default class ExprASTEquality implements ExpressionAST {
             this.left.type();
         const rightType: DataType =
             this.right.type();
+
+        if(!DataType.hasSameSignature(leftType, rightType))
+            results.errors.set(
+                this.mark,
+                'Loose type on \'' +
+                this.operator + '\' operation for type of ' +
+                leftType.toString() + ' and ' + rightType.toString() + '.'
+            );
 
         if(DataType.isOfFloatType(leftType) &&
             DataType.isOfIntType(rightType))

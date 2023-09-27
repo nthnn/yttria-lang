@@ -2,7 +2,7 @@ import { ConstantInt, IRBuilder, Module, Type, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
 import LLVMGlobalContext from "../../compiler/llvm_context";
-import { DataType } from "../../compiler/data_type";
+import DataType from "../../compiler/data_type";
 
 export default class ExprASTBool implements ExpressionAST {
     private value: boolean;

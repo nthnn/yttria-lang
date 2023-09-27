@@ -1,7 +1,9 @@
 import { ConstantFP, IRBuilder, Module, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
-import { DataType, LLVMDataType } from "../../compiler/data_type";
+
+import DataType from "../../compiler/data_type";
+import LLVMDataType from "../../compiler/native_type";
 
 export default class ExprASTFloat implements ExpressionAST {
     private value: number;

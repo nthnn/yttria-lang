@@ -1,7 +1,7 @@
 import { IRBuilder, Module, Type, Value } from "llvm-bindings";
 import { Token } from "../../tokenizer/token";
 import { ASTResolveResults, ExpressionAST } from "../ast";
-import { DataType } from "../../compiler/data_type";
+import DataType from "../../compiler/data_type";
 import ASTError from "../ast_exception";
 
 export default class ExprASTAndOr implements ExpressionAST {
@@ -30,8 +30,10 @@ export default class ExprASTAndOr implements ExpressionAST {
             this.left.visit(builder, module);
         const rightExpr: Value =
             this.right.visit(builder, module);
-        const outType: Type =
-            DataType.greaterIntegerType(
+        const outType: Type = (DataType.isSigned(this.left.type()) ?
+                DataType.greaterIntegerType :
+                DataType.greaterUIntegerType
+            )(
                 this.left.type(),
                 this.right.type()
             ).getLLVMType();
@@ -69,10 +71,16 @@ export default class ExprASTAndOr implements ExpressionAST {
     }
 
     public type(): DataType {
+        const leftType: DataType = this.left.type();
+        const rightType: DataType = this.right.type();
+
         if(this.operator == '|' ||
             this.operator == '&')
-            return DataType.greaterIntegerType(
-                this. left.type(),
+            return (DataType.isSigned(leftType) ?
+                DataType.greaterIntegerType :
+                DataType.greaterUIntegerType
+            )(
+                this.left.type(),
                 this.right.type()
             );
         else if(this.operator == '||' ||
@@ -96,6 +104,14 @@ export default class ExprASTAndOr implements ExpressionAST {
             this.left.marker();
         const rightMarker: Token =
             this.right.marker();
+
+        if(!DataType.hasSameSignature(leftType, rightType))
+            results.errors.set(
+                leftMarker,
+                'Loose type on \'' +
+                this.operator + '\' operation for type of ' +
+                leftType.toString() + ' and ' + rightType.toString() + '.'
+            );
 
         if(this.operator == '|' ||
             this.operator == '&') {
