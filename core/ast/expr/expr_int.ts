@@ -74,7 +74,7 @@ export default class ExprASTInt implements ExpressionAST {
 
             case 8:
                 this.minMaxFlow(
-                    BigInt('0'), BigInt('255'), 'i8',
+                    BigInt('-128'), BigInt('127'), 'i8',
                     results
                 );
                 break;
