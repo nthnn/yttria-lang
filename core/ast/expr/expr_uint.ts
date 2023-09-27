@@ -5,7 +5,7 @@ import { ASTResolveResults, ExpressionAST } from "../ast";
 import DataType from "../../compiler/data_type";
 import LLVMDataType from "../../compiler/native_type";
 
-export default class ExprASTInt implements ExpressionAST {
+export default class ExprASTUInt implements ExpressionAST {
     private value: BigInt;
     private bit: number;
     private mark: Token;
@@ -26,22 +26,22 @@ export default class ExprASTInt implements ExpressionAST {
     ): Value {
 
         return ConstantInt.get(
-            LLVMDataType.getIntType(this.bit),
+            LLVMDataType.getUIntType(this.bit),
             Number(this.value),
-            true
+            false
         );
     }
 
     public type(): DataType {
-        return LLVMDataType.getIntDataType(this.bit);
+        return LLVMDataType.getUIntDataType(this.bit);
     }
 
-    private minMaxFlow(
-        min: BigInt,
+    private maxFlow(
         max: BigInt,
         type: string,
         results: ASTResolveResults
     ): void {
+        const min: BigInt = BigInt('0');
 
         if(this.value < min)
             results.errors.set(
@@ -67,44 +67,23 @@ export default class ExprASTInt implements ExpressionAST {
 
         switch(this.bit) {
             case 4:
-                this.minMaxFlow(
-                    BigInt('-8'), BigInt('7'), 'i4',
-                    results
-                );
+                this.maxFlow(BigInt('15'), 'u4', results);
                 break;
 
             case 8:
-                this.minMaxFlow(
-                    BigInt('-128'), BigInt('127'), 'i8',
-                    results
-                );
+                this.maxFlow(BigInt('255'), 'u8', results);
                 break;
 
             case 16:
-                this.minMaxFlow(
-                    BigInt('-32768'),
-                    BigInt('32767'),
-                    'i16',
-                    results
-                );
+                this.maxFlow(BigInt('65535'), 'u16', results);
                 break;
 
             case 32:
-                this.minMaxFlow(
-                    BigInt('-2147483648'),
-                    BigInt('2147483647'),
-                    'i32',
-                    results
-                );
+                this.maxFlow(BigInt('4294967295'), 'u32', results);
                 break;
 
             case 64:
-                this.minMaxFlow(
-                    BigInt('-9223372036854775808'),
-                    BigInt('9223372036854775807'),
-                    'i64',
-                    results
-                );
+                this.maxFlow(BigInt('18446744073709551615'), 'u64', results);
                 break;
         }
     }

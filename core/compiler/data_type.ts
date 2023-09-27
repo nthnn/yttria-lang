@@ -1,7 +1,7 @@
 import { Type } from "llvm-bindings";
 import LLVMGlobalContext from "./llvm_context";
 
-class DataType {
+export default class DataType {
     private name: string;
     private bit: number;
     private llvmType: Type;
@@ -49,15 +49,15 @@ class DataType {
         new DataType("i64", 64, Type.getInt64Ty(LLVMGlobalContext));
 
     public static UI4: DataType =
-        new DataType("ui4", 4, Type.getIntNTy(LLVMGlobalContext, 4));
+        new DataType("u4", 4, Type.getIntNTy(LLVMGlobalContext, 4));
     public static UI8: DataType =
-        new DataType("ui8", 8, Type.getIntNTy(LLVMGlobalContext, 8));
+        new DataType("u8", 8, Type.getIntNTy(LLVMGlobalContext, 8));
     public static UI16: DataType =
-        new DataType("ui16", 16, Type.getInt16Ty(LLVMGlobalContext));
+        new DataType("u16", 16, Type.getInt16Ty(LLVMGlobalContext));
     public static UI32: DataType =
-        new DataType("ui32", 32, Type.getInt32Ty(LLVMGlobalContext));
+        new DataType("u32", 32, Type.getInt32Ty(LLVMGlobalContext));
     public static UI64: DataType =
-        new DataType("ui64", 64, Type.getInt64Ty(LLVMGlobalContext));
+        new DataType("u64", 64, Type.getInt64Ty(LLVMGlobalContext));
 
     public static F32: DataType =
         new DataType("f32", 32, Type.getFloatTy(LLVMGlobalContext));
@@ -87,6 +87,29 @@ class DataType {
         return b;
     }
 
+    public static greaterUIntegerType(
+        a: DataType,
+        b: DataType
+    ): DataType {
+        if(a == b)
+            return a;
+    
+        switch(a) {
+            case DataType.UI4:
+                return b;
+            case DataType.UI8:
+                return (b == DataType.UI4) ?
+                    a : b;
+            case DataType.UI16:
+                return (b == DataType.UI64) ?
+                    b : a;
+            case DataType.UI64:
+                return a;
+        }
+    
+        return b;
+    }
+
     public static greaterFloatType(
         a: DataType,
         b: DataType
@@ -109,6 +132,21 @@ class DataType {
         return false;
     }
 
+    public static isOfUIntType(
+        type: DataType
+    ): boolean {
+        switch(type) {
+            case DataType.UI4:
+            case DataType.UI8:
+            case DataType.UI16:
+            case DataType.UI32:
+            case DataType.UI64:
+                return true;
+        }
+
+        return false;
+    }
+
     public static isOfFloatType(
         type: DataType
     ): boolean {
@@ -116,66 +154,3 @@ class DataType {
             type == DataType.F64;
     }
 }
-
-class LLVMDataType {
-    private static floatTypeMap: Map<number, [Type, DataType]> =
-        new Map<number, [Type, DataType]>([
-        [32, [Type.getFloatTy(LLVMGlobalContext), DataType.F32]],
-        [64, [Type.getDoubleTy(LLVMGlobalContext), DataType.F64]],
-    ]);
-
-    private static intTypeMap: Map<number, [Type, DataType]> =
-        new Map<number, [Type, DataType]>([
-        [4, [Type.getIntNTy(LLVMGlobalContext, 4), DataType.I4]],
-        [8, [Type.getInt8Ty(LLVMGlobalContext), DataType.I8]],
-        [16, [Type.getInt16Ty(LLVMGlobalContext), DataType.I16]],
-        [32, [Type.getInt32Ty(LLVMGlobalContext), DataType.I32]],
-        [64, [Type.getInt64Ty(LLVMGlobalContext),DataType.I64]],
-    ]);
-
-    public static getFloatType(
-        bit: number
-    ): Type {
-        if(LLVMDataType.floatTypeMap.has(bit))
-            return LLVMDataType.floatTypeMap.get(bit)![0];
-
-        return Type.getFloatTy(LLVMGlobalContext);
-    }
-
-    public static getFloatDataType(
-        bit: number
-    ): DataType {
-
-        return bit == 32 ?
-            DataType.F32 : DataType.F64;
-    }
-
-    public static getIntType(bit: number): Type {
-        if(LLVMDataType.intTypeMap.has(bit))
-            return LLVMDataType.intTypeMap.get(bit)![0];
-
-        return Type.getIntNTy(LLVMGlobalContext, 0);
-    }
-
-    public static getIntDataType(bit: number): DataType {
-        switch(bit) {
-            case 4:
-                return DataType.I4;
-            case 8:
-                return DataType.I8;
-            case 16:
-                return DataType.I16;
-            case 32:
-                return DataType.I32;
-            case 64:
-                return DataType.I64;
-        }
-
-        return DataType.UNKNOWN;
-    }
-}
-
-export {
-    DataType,
-    LLVMDataType
-};
