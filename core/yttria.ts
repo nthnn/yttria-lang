@@ -61,7 +61,7 @@ function llvmTest() {
     );
 
     const expr1: ExprASTString = new ExprASTString(nullToken, "What");
-    const expr2: ExprASTInt = new ExprASTInt(nullToken, BigInt('99'), 32);
+    const expr2: ExprASTInt = new ExprASTInt(nullToken, 99, 32);
 
     const cmp: ExprASTBinary = new ExprASTBinary(nullToken, '+', expr1, expr2);
     const body: StmtASTRender = new StmtASTRender(nullToken, new ExprASTBinary(nullToken, '+', new ExprASTString(nullToken, "The output is "), cmp));
