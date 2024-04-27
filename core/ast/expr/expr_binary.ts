@@ -33,8 +33,8 @@ export default class ExprASTBinary implements ExpressionAST {
         const rightType: DataType =
             this.right.type();
 
-        if(DataType.isOfIntType(leftType) &&
-            DataType.isOfIntType(rightType))
+        if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
             return builder.CreateIntCast(
                 builder.CreateAdd(
                     this.left.visit(builder, module),
@@ -45,7 +45,7 @@ export default class ExprASTBinary implements ExpressionAST {
                 ).getLLVMType(),
                 true
             );
-        else if(DataType.isOfIntType(leftType) &&
+        else if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
             DataType.isOfFloatType(rightType)) {
             const outputType: Type =
                 rightType.getLLVMType();
@@ -74,7 +74,7 @@ export default class ExprASTBinary implements ExpressionAST {
                 ).getLLVMType()
             );
         else if(DataType.isOfFloatType(leftType) &&
-            DataType.isOfIntType(rightType)) {
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType))) {
             const outputType: Type =
                 leftType.getLLVMType();
 
@@ -119,7 +119,7 @@ export default class ExprASTBinary implements ExpressionAST {
                 ]
             );
         }
-        else if(DataType.isOfIntType(leftType) &&
+        else if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
             rightType == DataType.STRING)
             return builder.CreateCall(
                 YttriaRuntime.concatStrStr(module),
@@ -138,7 +138,7 @@ export default class ExprASTBinary implements ExpressionAST {
                 ]
             );
         else if(leftType == DataType.STRING &&
-            DataType.isOfIntType(rightType))
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
             return builder.CreateCall(
                 YttriaRuntime.concatStrStr(module),
                 [
@@ -192,7 +192,8 @@ export default class ExprASTBinary implements ExpressionAST {
                 ]
             );
 
-        throw new ASTError('Invalid operation.');
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '+' + rightType.toString() + ']');
     }
 
     private visitSub(
@@ -204,13 +205,13 @@ export default class ExprASTBinary implements ExpressionAST {
         const rightType: DataType =
             this.right.type();
 
-        if(DataType.isOfIntType(leftType) &&
-            DataType.isOfIntType(rightType))
+        if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
             return builder.CreateSub(
                 this.left.visit(builder, module),
                 this.right.visit(builder, module)
             );
-        else if(DataType.isOfIntType(leftType) &&
+        else if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
             DataType.isOfFloatType(rightType))
             return builder.CreateFSub(
                 builder.CreateFPCast(
@@ -226,7 +227,7 @@ export default class ExprASTBinary implements ExpressionAST {
                 this.right.visit(builder, module)
             );
         else if(DataType.isOfFloatType(leftType) &&
-            DataType.isOfIntType(rightType))
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
             return builder.CreateFSub(
                 this.left.visit(builder, module),
                 builder.CreateFPCast(
@@ -235,7 +236,152 @@ export default class ExprASTBinary implements ExpressionAST {
                 )
             );
 
-        throw new ASTError('Invalid operation.');
+            throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '-' + rightType.toString() + ']');
+    }
+
+    private visitDiv(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType))
+            return builder.CreateSDiv(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfUIntType(leftType) &&
+            DataType.isOfUIntType(rightType))
+            return builder.CreateUDiv(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFDiv(
+                builder.CreateFPCast(
+                    this.left.visit(builder, module),
+                    rightType.getLLVMType()
+                ),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFDiv(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
+            return builder.CreateFDiv(
+                this.left.visit(builder, module),
+                builder.CreateFPCast(
+                    this.right.visit(builder, module),
+                    rightType.getLLVMType()
+                )
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '/' + rightType.toString() + ']');
+    }
+
+    private visitMul(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
+            return builder.CreateMul(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFMul(
+                builder.CreateFPCast(
+                    this.left.visit(builder, module),
+                    rightType.getLLVMType()
+                ),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFMul(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
+            return builder.CreateFMul(
+                this.left.visit(builder, module),
+                builder.CreateFPCast(
+                    this.right.visit(builder, module),
+                    rightType.getLLVMType()
+                )
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '*' + rightType.toString() + ']');
+    }
+
+    private visitRem(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(DataType.isOfIntType(leftType) &&
+            DataType.isOfIntType(rightType))
+            return builder.CreateSRem(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfUIntType(leftType) &&
+            DataType.isOfUIntType(rightType))
+            return builder.CreateURem(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFRem(
+                builder.CreateFPCast(
+                    this.left.visit(builder, module),
+                    rightType.getLLVMType()
+                ),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            DataType.isOfFloatType(rightType))
+            return builder.CreateFRem(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+        else if(DataType.isOfFloatType(leftType) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
+            return builder.CreateFRem(
+                this.left.visit(builder, module),
+                builder.CreateFPCast(
+                    this.right.visit(builder, module),
+                    rightType.getLLVMType()
+                )
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '%' + rightType.toString() + ']');
     }
 
     public visit(
@@ -249,6 +395,21 @@ export default class ExprASTBinary implements ExpressionAST {
             );
         else if(this.operator == '-')
             return this.visitSub(
+                builder,
+                module
+            );
+        else if(this.operator == '/')
+            return this.visitDiv(
+                builder,
+                module
+            );
+        else if(this.operator == '*')
+            return this.visitDiv(
+                builder,
+                module
+            );
+        else if(this.operator == '%')
+            return this.visitRem(
                 builder,
                 module
             );
