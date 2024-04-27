@@ -6,13 +6,13 @@ import DataType from "../../compiler/data_type";
 import LLVMDataType from "../../compiler/native_type";
 
 export default class ExprASTInt implements ExpressionAST {
-    private value: BigInt;
+    private value: number;
     private bit: number;
     private mark: Token;
 
     public constructor(
         mark: Token,
-        value: BigInt,
+        value: number,
         bit: number
     ) {
         this.mark = mark;
@@ -37,8 +37,8 @@ export default class ExprASTInt implements ExpressionAST {
     }
 
     private minMaxFlow(
-        min: BigInt,
-        max: BigInt,
+        min: number,
+        max: number,
         type: string,
         results: ASTResolveResults
     ): void {
@@ -68,22 +68,22 @@ export default class ExprASTInt implements ExpressionAST {
         switch(this.bit) {
             case 4:
                 this.minMaxFlow(
-                    BigInt('-8'), BigInt('7'), 'i4',
+                    -8, 7, 'i4',
                     results
                 );
                 break;
 
             case 8:
                 this.minMaxFlow(
-                    BigInt('-128'), BigInt('127'), 'i8',
+                    -128, 127, 'i8',
                     results
                 );
                 break;
 
             case 16:
                 this.minMaxFlow(
-                    BigInt('-32768'),
-                    BigInt('32767'),
+                    -32768,
+                    32767,
                     'i16',
                     results
                 );
@@ -91,8 +91,8 @@ export default class ExprASTInt implements ExpressionAST {
 
             case 32:
                 this.minMaxFlow(
-                    BigInt('-2147483648'),
-                    BigInt('2147483647'),
+                    -2147483648,
+                    2147483647,
                     'i32',
                     results
                 );
@@ -100,8 +100,8 @@ export default class ExprASTInt implements ExpressionAST {
 
             case 64:
                 this.minMaxFlow(
-                    BigInt('-9223372036854775808'),
-                    BigInt('9223372036854775807'),
+                    -9223372036854775808,
+                    9223372036854775807,
                     'i64',
                     results
                 );
