@@ -384,6 +384,66 @@ export default class ExprASTBinary implements ExpressionAST {
             leftType.toString() + '%' + rightType.toString() + ']');
     }
 
+    private visitLShr(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(leftType == DataType.BOOL &&
+            rightType == DataType.BOOL)
+            return builder.CreateLShr(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '>>>' + rightType.toString() + ']');
+    }
+
+    private visitAShr(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
+            return builder.CreateAShr(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '>>' + rightType.toString() + ']');
+    }
+
+    private visitAShl(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if((DataType.isOfIntType(leftType) || DataType.isOfUIntType(leftType)) &&
+            (DataType.isOfIntType(rightType) || DataType.isOfUIntType(rightType)))
+            return builder.CreateShl(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '<<' + rightType.toString() + ']');
+    }
+
     public visit(
         builder: IRBuilder,
         module: Module
@@ -404,12 +464,27 @@ export default class ExprASTBinary implements ExpressionAST {
                 module
             );
         else if(this.operator == '*')
-            return this.visitDiv(
+            return this.visitMul(
                 builder,
                 module
             );
         else if(this.operator == '%')
             return this.visitRem(
+                builder,
+                module
+            );
+        else if(this.operator == '>>>')
+            return this.visitLShr(
+                builder,
+                module
+            );
+        else if(this.operator == '>>')
+            return this.visitAShr(
+                builder,
+                module
+            );
+        else if(this.operator == '<<')
+            return this.visitAShl(
                 builder,
                 module
             );
@@ -437,16 +512,39 @@ export default class ExprASTBinary implements ExpressionAST {
             (a == DataType.STRING &&
             b == DataType.STRING) ||
             (a == DataType.STRING &&
-            DataType.isOfIntType(b)) ||
-            (DataType.isOfIntType(a) &&
+            (DataType.isOfIntType(b) || DataType.isOfUIntType(b))) ||
+            ((DataType.isOfIntType(a) || DataType.isOfUIntType(a)) &&
             b == DataType.STRING)) ||
             (a == DataType.STRING &&
             DataType.isOfFloatType(b)) ||
             (DataType.isOfFloatType(a) &&
             b == DataType.STRING))
             return DataType.STRING;
+        else if(this.operator == '-' ||
+            this.operator == '/' ||
+            this.operator == '*' ||
+            this.operator == '%'
+        ) {
+            if(DataType.isOfIntType(a) &&
+                DataType.isOfIntType(b))
+                return DataType.greaterIntegerType(a, b);
+            else if(DataType.isOfUIntType(a) &&
+                DataType.isOfUIntType(b))
+                return DataType.greaterUIntegerType(a, b);
+            else if(DataType.isOfFloatType(a) &&
+                DataType.isOfFloatType(b))
+                return DataType.greaterFloatType(a, b);
+        }
+        else if(this.operator == '>>>' ||
+            this.operator == '>>' ||
+            this.operator == '<<') {    
+            if(DataType.isOfIntType(a) && DataType.isOfIntType(b))
+                return DataType.greaterIntegerType(a, b);
+            else if(DataType.isOfUIntType(a) && DataType.isOfUIntType(b))
+                return DataType.greaterUIntegerType(a, b);
+        }
 
-        return DataType.UNKNOWN;
+        throw new ASTError("Incompatible types for binary operation.");
     }
 
     private resolveAdd(
