@@ -444,6 +444,44 @@ export default class ExprASTBinary implements ExpressionAST {
             leftType.toString() + '<<' + rightType.toString() + ']');
     }
 
+    private visitOr(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(leftType == DataType.BOOL && rightType == DataType.BOOL)
+            return builder.CreateOr(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '||' + rightType.toString() + ']');
+    }
+
+    private visitAnd(
+        builder: IRBuilder,
+        module: Module
+    ): Value {
+        const leftType: DataType =
+            this.left.type();
+        const rightType: DataType =
+            this.right.type();
+
+        if(leftType == DataType.BOOL && rightType == DataType.BOOL)
+            return builder.CreateAnd(
+                this.left.visit(builder, module),
+                this.right.visit(builder, module)
+            );
+
+        throw new ASTError('Invalid binary operation [' +
+            leftType.toString() + '&&' + rightType.toString() + ']');
+    }
+
     public visit(
         builder: IRBuilder,
         module: Module
@@ -485,6 +523,16 @@ export default class ExprASTBinary implements ExpressionAST {
             );
         else if(this.operator == '<<')
             return this.visitAShl(
+                builder,
+                module
+            );
+        else if(this.operator == '||')
+            return this.visitOr(
+                builder,
+                module
+            );
+        else if(this.operator == '&&')
+            return this.visitAnd(
                 builder,
                 module
             );
@@ -543,6 +591,10 @@ export default class ExprASTBinary implements ExpressionAST {
             else if(DataType.isOfUIntType(a) && DataType.isOfUIntType(b))
                 return DataType.greaterUIntegerType(a, b);
         }
+        else if((this.operator == '||' ||
+            this.operator == '&&') &&
+            a == DataType.BOOL && b == DataType.BOOL)
+            return DataType.BOOL;
 
         throw new ASTError("Incompatible types for binary operation.");
     }
@@ -728,12 +780,16 @@ export default class ExprASTBinary implements ExpressionAST {
                 ') operation with ' + leftType.toString() +
                 ' and ' + rightType.toString()
             );
-
-        this.resolveExpressions(
-            results,
-            returnType,
-            unsafe
-        );
+        else if((this.operator == '||' ||
+            this.operator == '&&') &&
+            !(leftType == DataType.BOOL &&
+            rightType == DataType.BOOL))
+            results.errors.set(
+                this.marker(),
+                'Invalid logic operator (' + this.operator +
+                ') operation with ' + leftType.toString() +
+                ' and ' + rightType.toString()
+            );
     }
 
     public marker(): Token {
