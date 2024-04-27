@@ -6,13 +6,13 @@ import DataType from "../../compiler/data_type";
 import LLVMDataType from "../../compiler/native_type";
 
 export default class ExprASTUInt implements ExpressionAST {
-    private value: BigInt;
+    private value: number;
     private bit: number;
     private mark: Token;
 
     public constructor(
         mark: Token,
-        value: BigInt,
+        value: number,
         bit: number
     ) {
         this.mark = mark;
@@ -37,11 +37,11 @@ export default class ExprASTUInt implements ExpressionAST {
     }
 
     private maxFlow(
-        max: BigInt,
+        max: number,
         type: string,
         results: ASTResolveResults
     ): void {
-        const min: BigInt = BigInt('0');
+        const min: number = 0;
 
         if(this.value < min)
             results.errors.set(
@@ -67,23 +67,23 @@ export default class ExprASTUInt implements ExpressionAST {
 
         switch(this.bit) {
             case 4:
-                this.maxFlow(BigInt('15'), 'u4', results);
+                this.maxFlow(15, 'u4', results);
                 break;
 
             case 8:
-                this.maxFlow(BigInt('255'), 'u8', results);
+                this.maxFlow(255, 'u8', results);
                 break;
 
             case 16:
-                this.maxFlow(BigInt('65535'), 'u16', results);
+                this.maxFlow(65535, 'u16', results);
                 break;
 
             case 32:
-                this.maxFlow(BigInt('4294967295'), 'u32', results);
+                this.maxFlow(4294967295, 'u32', results);
                 break;
 
             case 64:
-                this.maxFlow(BigInt('18446744073709551615'), 'u64', results);
+                this.maxFlow(18446744073709551615, 'u64', results);
                 break;
         }
     }
